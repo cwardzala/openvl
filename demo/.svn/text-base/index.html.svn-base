@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Open Validation Library - Demo</title>
+		<link rel="stylesheet" href="css/style.css">
+	</head>
+	<body>
+		<div id="container">
+			<div id="hd">
+				<h1><a href="http://openvl.info">Open Validation Library</a></h1>
+			</div>
+			<div id="bd">
+				<h2>Demo</h2>
+				<p>No information will be saved or processed.</p>
+				<h3>Form A</h3>
+				<form action="" method="get" id="form">
+					<div class="form">
+						<div class="spot"><label for="Name"><span class="req">*</span> Name</label><input type="text" id="Name" class="form-req" data-form-req-message="Custom message for form-req rule."></div>
+						<div class="spot"><label for="PhoneNumber">Phone Number</label><input type="text" id="PhoneNumber" class="form-phone"></div>
+						<div class="spot"><label for="Email"><span class="req">*</span> Email</label><input type="email" id="Email" class="form-req form-email"></div>
+						<div class="spot"><label for="State"><span class="req">*</span> State</label><select id="State" class="form-req"><option value="">Select</option><option value="AL">AL</option><option value="AK">AK</option><option value="AZ">AZ</option><option value="AR">AR</option><option value="CA">CA</option><option value="CO">CO</option><option value="CT">CT</option><option value="DE">DE</option><option value="DC">DC</option><option value="FL">FL</option><option value="GA">GA</option><option value="HI">HI</option><option value="ID">ID</option><option value="IL">IL</option><option value="IN">IN</option><option value="IA">IA</option><option value="KS">KS</option><option value="KY">KY</option><option value="LA">LA</option><option value="ME">ME</option><option value="MD">MD</option><option value="MA">MA</option><option value="MI">MI</option><option value="MN">MN</option><option value="MS">MS</option><option value="MO">MO</option><option value="MT">MT</option><option value="NE">NE</option><option value="NV">NV</option><option value="NH">NH</option><option value="NJ">NJ</option><option value="NM">NM</option><option value="NY">NY</option><option value="NC">NC</option><option value="ND">ND</option><option value="OH">OH</option><option value="OK">OK</option><option value="OR">OR</option><option value="PA">PA</option><option value="RI">RI</option><option value="SC">SC</option><option value="SD">SD</option><option value="TN">TN</option><option value="TX">TX</option><option value="UT">UT</option><option value="VT">VT</option><option value="VA">VA</option><option value="WA">WA</option><option value="WV">WV</option><option value="WI">WI</option><option value="WY">WY</option></select></div>
+						<div class="spot opts"><input type="checkbox" name="checkbox" class="checkbox form-req form-check" data-form-check-message="You have to check this box!" id="Youhavetocheckme"><label for="Youhavetocheckme">You have to check me</label></div>
+						<div class="spot group opts">
+							<div class="spot"><input type="radio" name="radios" class="radio form-req form-check" id="radio1" value="r1"><label for="radio1">Radiobutton 1</label></div>
+							<div class="spot"><input type="radio" name="radios" class="radio form-req form-check" id="radio2" value="r2"><label for="radio2">Radiobutton 2</label></div>
+							<div class="spot"><input type="radio" name="radios" class="radio form-req form-check" id="radio3" value="r3"><label for="radio3">Radiobutton 3</label></div>
+						</div>
+						<div class="spot "><button type="submit" id="Submit">Submit</button>
+							<button type="button" id="dis" onclick="var cv = new OpenVL(); cv.clearvalidation('#form'); cv=null;">Clear Validation</button>
+							<button type="button" id="re" onclick="var cv = new OpenVL(); cv.validate({_form:'#form'}); cv=null;">ReEnable Validation</button>
+						</div>
+					</div>
+				</form>
+				<h3>Form B</h3>
+				<form action="" method="get" id="form2">
+					<div class="form">
+						<div class="spot"><label for="Name2"><span class="req">*</span> Name</label><input type="text" id="Name2" class="form-req"></div>
+						<div class="spot"><label for="PhoneNumber2">Phone Number</label><input type="text" id="PhoneNumber2" class="form-phone"></div>
+						<div class="spot"><label for="Email2"><span class="req">*</span> Email</label><input type="email" id="Email2" class="form-req form-email"></div>
+						<div class="spot"><label for="State2"><span class="req">*</span> State</label><select id="State2" class="form-req"><option value="">Select</option><option value="AL">AL</option><option value="AK">AK</option><option value="AZ">AZ</option><option value="AR">AR</option><option value="CA">CA</option><option value="CO">CO</option><option value="CT">CT</option><option value="DE">DE</option><option value="DC">DC</option><option value="FL">FL</option><option value="GA">GA</option><option value="HI">HI</option><option value="ID">ID</option><option value="IL">IL</option><option value="IN">IN</option><option value="IA">IA</option><option value="KS">KS</option><option value="KY">KY</option><option value="LA">LA</option><option value="ME">ME</option><option value="MD">MD</option><option value="MA">MA</option><option value="MI">MI</option><option value="MN">MN</option><option value="MS">MS</option><option value="MO">MO</option><option value="MT">MT</option><option value="NE">NE</option><option value="NV">NV</option><option value="NH">NH</option><option value="NJ">NJ</option><option value="NM">NM</option><option value="NY">NY</option><option value="NC">NC</option><option value="ND">ND</option><option value="OH">OH</option><option value="OK">OK</option><option value="OR">OR</option><option value="PA">PA</option><option value="RI">RI</option><option value="SC">SC</option><option value="SD">SD</option><option value="TN">TN</option><option value="TX">TX</option><option value="UT">UT</option><option value="VT">VT</option><option value="VA">VA</option><option value="WA">WA</option><option value="WV">WV</option><option value="WI">WI</option><option value="WY">WY</option></select></div>
+						<div class="spot opts"><input type="checkbox" name="checkbox2" class="checkbox form-req form-check" id="Youhavetocheckme2"><label for="Youhavetocheckme2">You have to check me</label></div>
+						<div class="spot group opts">
+							<div class="spot"><input type="radio" name="radios2" class="radio form-req form-check" id="radio12" value="r1"><label for="radio12">Radiobutton 1</label></div>
+							<div class="spot"><input type="radio" name="radios2" class="radio form-req form-check" id="radio22" value="r2"><label for="radio22">Radiobutton 2</label></div>
+							<div class="spot"><input type="radio" name="radios2" class="radio form-req form-check" id="radio32" value="r3"><label for="radio32">Radiobutton 3</label></div>
+						</div>
+						<div class="spot "><button type="submit" id="Submit2">Submit</button></div>
+					</div>
+				</form>
+			</div>
+			<div id="ft">
+				<p>Copyright 2010, Cameron Wardzala</p>
+				<p>The Open Validation Library is licensed under the MIT license.</p>
+			</div>
+		</div>
+		<div id="javascript">
+			<script src="../src/OpenValidate.js"></script>
+			<script>
+				/**
+				 * Create new instance of the validator object 
+				 */
+				var ov = new OpenVL();
+				/**
+				 * Setup validation.
+				 * Just pass a class(s), id(s), or element name(s) along with any of the other optional params to the .validate() function.
+				 */
+				ov.validate({_form:"#form,form"});
+			</script>
+		</div>
+	</body>
+</html>
