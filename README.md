@@ -1,5 +1,7 @@
 Open Validation Library (OpenVL)
 ================================
+More info at http://openvl.info
+
 Form validation made simple, and extensible.
 -------------------------------------------
 The goal of the Open Validation Library is to provide a simple form validation library that can be extended to fit any need without any additional requirements.
