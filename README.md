@@ -22,7 +22,7 @@ There are a few steps to setup your form for validation.
 
 ### Step 1. Format HTML
 Start with a form that has a unique ID with each form field and label combination wrapped in a div for inline messaging.
-`
+```html
 	<form id="formID" method="get/post" action="">
 		<div class="form">
 			<div class="spot">
@@ -30,13 +30,17 @@ Start with a form that has a unique ID with each form field and label combinatio
 			</div>
 		</div>
 	</form>
-`
+```
 ### Step 2. Setup JavaScript
 Make sure you include the library before you make the calls to instantiate your validation.
 
-`	<script src="js/OpenValidate-version.js"></script>
+```html
+	<script src="js/OpenValidate-version.js"></script>
+```
+```javascript
 	var oval = new OpenVL();
-	oval.validate({_form:"#formID"});`
+	oval.validate({_form:"#formID"});
+```
 When you call .validate() there are a few options you can pass to adjust how the validation will act.
 				<ol>
 					<li><code>_form</code>: This is the ID, class, or element name of the form you want to validate. Default: <code>document</code></li>
