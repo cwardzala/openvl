@@ -114,3 +114,32 @@ Anatomy of a rule
 4. _class: The class used in the HTML to identify the rule to be applied.
 5. msg: The custom error message for this rule.
 6. useLabels: sets the option to use form labels in the error message.
+
+Default Ruleset
+---------------
+The default ruleset is only a small selection of the rules that can be used with the validator, so feel free to write your own. 
+If you would like to submit a rule to be included in the default ruleset for others to use please email me at cwardzala+openvl@gmail.com, include the rule in the above format along with description of the rule.
+
+### Is Required
+Tests if the scope's value is null or has a length of zero.
+
+### Is Numeric
+Tests if the scope's value is a number.
+
+### Is Email
+Tests for a validly formatted email.
+
+### Is The Same
+Tests two fields against each other using the form_same and form_same_verify classes.
+
+### Is Checked
+Tests if a radio button or checkbox is "checked".
+
+### Is Phone
+Checks for a validly formatted phone number with or without dashes (-).
+
+### Is Length
+Checks the character count based on the min and max attributes.
+
+### Is Value
+Checks the numerical value based on the min and max attributes.
