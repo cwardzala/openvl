@@ -100,3 +100,17 @@ Custom messages are set per rule per form control. The format is always `data-[r
 ```html
 <input id="input" class="form-req" data-form-req-message="Custom message" />
 ```
+
+Anatomy of a rule
+-----------------
+
+```javascript
+{id:"", func: function (scope) {}, _class:"", msg:"", useLabels:""}
+```
+
+1. id: A unique identifier for the rule.
+2. func: The validation function.
+3. scope: The form field object gets passed to the function as scope.
+4. _class: The class used in the HTML to identify the rule to be applied.
+5. msg: The custom error message for this rule.
+6. useLabels: sets the option to use form labels in the error message.
