@@ -10,10 +10,10 @@ Currently the library is written in JavaScript for use with web forms, however i
 
 Features
 --------
-* Supports HTML5 attributes like min and max
+* Supports HTML5 attributes like min, max, and data
 * Has both list and inline type messaging
 * Rules can be customized to fit any need
-* Supports jQuery, Sizzle, and Dojo frameworks, none of these are required
+* Supports jQuery, Sizzle, and Dojo frameworks *none of these are required*
 * Supported browsers: IE6+, FF3+, Safari 5+
 
 Setup and Usage
@@ -52,3 +52,51 @@ When you call .validate() there are a few options you can pass to adjust how the
 	* "inline" will only show a message next to the form field.
 	* "list" will only show an unordered list of all errors above the form.
 	* "both" both message types will be used.
+	
+On demand usage
+---------------
+There are two ways to call validation on demand
+
+### `exec(string/object)`
+Running the exec() function will execute a full form validation and return error messaging.
+
+You can pass either the ID string of the form or the actual DOM object.
+
+```javascript
+	var oval = new OpenVL();
+	oval.exec("form");
+```
+
+### `test(string/object)`
+Running the test() function will execute a full form validation and return only true or false if the entire form is either valid or invalid respectively.
+
+You can pass either the ID string of the form or the actual DOM object.
+
+```javascript
+	var oval = new OpenVL();
+	oval.test("form");
+```
+
+Clearing validation on a form
+-----------------------------
+
+### `clearvalidation(string/object)`
+Running the clearvalidation() function will remove all validation functions from the form.
+You can pass either the ID string of the form or the actual DOM object.
+
+```javascript
+var oval = new OpenVL();
+oval.clearvalidation("form");
+```
+
+Custom Messaging
+----------------
+___Thanks to Jeremie Barnes for this!___
+
+Using the HTML5 custom data attribute we can set custom messages for each form control. If no custom message is used then the rule default will be applied.
+
+Custom messages are set per rule per form control. The format is always `data-[rule class]-message=""`
+
+```html
+	<input id="input" class="form-req" data-form-req-message="Custom message" />
+```
