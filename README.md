@@ -49,6 +49,6 @@ When you call .validate() there are a few options you can pass to adjust how the
 2. `_focusBlur`: Sets whether the validation should run on blur of a form element. Default: `true`
 3. `uselabels`: Sets whether to use the form labels as part of the error messages. Default: `true`
 4. `_msgType`: Sets the messaging type for the form. Default `both`
-* "inline" will only show a message next to the form field.
-* "list" will show only an unordered list of all errors above the form.
-* "both" both message types will be used.
+	* "inline" will only show a message next to the form field.
+	* "list" will show only an unordered list of all errors above the form.
+	* "both" both message types will be used.
