@@ -65,44 +65,69 @@
  * @param string The browser name to test for.
  * @returns true if browser is in use, false if not.
  * 
- */
-var unique						= function (a) { var r = [],i,x,y,n; o:for(i = 0, n = a.length; i < n; i++){ for(x = 0, y = r.length; x < y; x++){ if(r[x]===a[i]) {continue o;} } r[r.length] = a[i]; } return r; };
-var findIndex					= function (ele,arr) { var ctr = "",i; for (i=0; i < arr.length; i++) { if (arr[i] === ele) { return i; } } return ctr; };
-var extend						= function (obj, extObj) { var i,a; if (arguments.length > 2) { for (a = 1; a < arguments.length; a++) { extend(obj, arguments[a]); } } else { for (i in extObj) { obj[i] = extObj[i]; } } return obj; };
-var hasClass					= function (ele,cls) {return ele.className.match(new RegExp('(\\s|^)'+cls+'(\\s|$)')); };
-var addClass					= function (ele,cls) { if (!hasClass(ele,cls)) {ele.className += " "+cls;} };
-var removeClass					= function (ele,cls) { if (hasClass(ele,cls)) { var reg = new RegExp('(\\s|^)'+cls+'(\\s|$)'); ele.className=ele.className.replace(reg,' '); } };
-var ReturnLabel					= function (ele) { if (ele !== undefined && ele.nodeType === 1 && ele.nodeName === "LABEL") { var text = ele.innerText || ele.textContent; return text.replace(/\([^)]* \)/g,'').replace(/[^a-zA-Z 0-9]+/g,'').replace(/^\s*|\s*$/g,'');} };
-var prepend						= function (ele,target) { if ( target.nodeType === 1 ) { target.insertBefore( ele, target.firstChild );} };
-var isBrowser					= function (string) {return (navigator.userAgent.indexOf(string)>=0);};
-
-/**
  * Query function, when passed a scope object, and a string criteria in css syntax (id: #idname, class: .classname, element: div) will return an array of matched elements.
  * @param scope The DOM object to be queried, defaults to document.
  * @param string Class name, ID, or element name(s) in css format.
  * @returns An array of matched elements.
  */
-var query = function (string,scope) {
-	scope = scope || document;
-	var es = string.replace(' ','').split(','), esl = es.length, retnode = [], elem = scope.getElementsByTagName('*'), el = elem.length, r=[],i,ei;
-	for (i = 0; i < el; i++) {
-		for (ei = 0; ei<esl; ++ei) {
-			var type = es[ei].charAt(0), value = es[ei].replace(type,'');
-			if (type === "#") {if (elem[i].id === value) {retnode.push(elem[i]);}}
-			else if (type === ".") {var myclass = new RegExp(value+'(?=\s)|'+value+'(?!\s)'), classes = elem[i].className; if (myclass.test(classes)) {retnode.push(elem[i]);} }
-			else { if (elem[i].nodeName === es[ei].toUpperCase()) { retnode.push(elem[i]);} }
+
+/** 
+ * Thanks to Keith Clark (@keithclarkcouk) for this selector engine parser
+ * Taken from selectivizr.js
+ * http://selectivizr.com/
+ *
+ * Compatiable selector engines in order of CSS3 support. Note: '*' is
+ * a placholder for the object key name. (basically, crude compression)
+ */
+var selectorEngines = {
+	"Sizzle"	: "*", 
+	"jQuery"	: "*",
+	"dojo"		: "*.query"
+},
+OVLengine = null, engineName = null, win = this;
+// Determine the "best fit" selector engine
+for (var engine in selectorEngines) {
+	var members, member, context = win;
+	if (win[engine]) {
+		members = selectorEngines[engine].replace("*", engine).split(".");
+		while ((member = members.shift()) && (context = context[member])) {}
+		if (typeof context == "function") {
+			OVLengine = context;
+			engineName = engine;
 		}
 	}
-	// Utilize the unique function rather than recreate it here.
-	return unique(retnode);
+}
+
+var query = function (string,scope) {
+	scope = scope || document;
+	if (OVLengine !== null) {
+		return OVLengine(string,scope);
+	} else {
+		var es = string.replace(' ','').split(','), esl = es.length, retnode = [], elem = scope.getElementsByTagName('*'), el = elem.length, r=[],i,ei;
+		for (i = 0; i < el; i++) {
+			for (ei = 0; ei<esl; ++ei) {
+				var type = es[ei].charAt(0), value = es[ei].replace(type,'');
+				if (type === "#") {if (elem[i].id === value) {retnode.push(elem[i]);}}
+				else if (type === ".") {var myclass = new RegExp(value+'(?=\s)|'+value+'(?!\s)'), classes = elem[i].className; if (myclass.test(classes)) {retnode.push(elem[i]);} }
+				else { if (elem[i].nodeName === es[ei].toUpperCase()) { retnode.push(elem[i]);} }
+			}
+		}
+		// Utilize the unique function rather than recreate it here.
+		return unique(retnode);
+	}
 };
 
+var unique						= function (a)				{ var r = [],i,x,y,n; o:for(i = 0, n = a.length; i < n; i++){ for(x = 0, y = r.length; x < y; x++){ if(r[x]===a[i]) {continue o;} } r[r.length] = a[i]; } return r; };
+var findIndex					= function (ele,arr)		{ var ctr = "",i; for (i=0; i < arr.length; i++) { if (arr[i] === ele) { return i; } } return ctr; };
+var extend						= function (obj, extObj)	{ var i,a; if (arguments.length > 2) { for (a = 1; a < arguments.length; a++) { extend(obj, arguments[a]); } } else { for (i in extObj) { obj[i] = extObj[i]; } } return obj; };
+var hasClass					= function (ele,cls)		{return ele.className.match(new RegExp('(\\s|^)'+cls+'(\\s|$)')); };
+var addClass					= function (ele,cls)		{ if (!hasClass(ele,cls)) { ele.className += " "+cls;} };
+var removeClass					= function (ele,cls)		{ if (hasClass(ele,cls)) { var reg = new RegExp('(\\s|^)'+cls+'(\\s|$)'); ele.className=ele.className.replace(reg,' '); } };
+var ReturnLabel					= function (ele)			{ if (ele !== undefined && ele.nodeType === 1 && ele.nodeName === "LABEL") { var text = ele.innerText || ele.textContent; return text.replace(/\([^)]* \)/g,'').replace(/[^a-zA-Z 0-9]+/g,'').replace(/^\s*|\s*$/g,'');} };
+var prepend						= function (ele,target)		{ if ( target.nodeType === 1 ) { target.insertBefore( ele, target.firstChild );} };
+var isBrowser					= function (string)			{return (navigator.userAgent.indexOf(string)>=0);};
 
-
-
-/**
- * Rules
- */
+/* Rules */
 var Rules = [
 	{id:"isRequired", func: function (scope) { return (scope.value === null) || (scope.value.length !== 0);}, _class:"form-req", msg:"is a required field.", useLabels:true},
 	{id:"isNumeric", func: function (scope) { var re = new RegExp(/^([0-9]\d*(\.|\,)\d*|0?(\.|\,)\d*[1-9]\d*|[0-9]\d*)$/); return re.test(scope.value);}, _class:"form-number", msg:"can only be a number.", useLabels:true},
@@ -114,18 +139,9 @@ var Rules = [
 	{id:"isValue", func: function (scope) { var val = parseInt(scope.value,10), min = parseInt(scope.getAttribute("min"),10), max = parseInt(scope.getAttribute("max"),10); if (min === max) { return (val === min); } else { return (val >= min) && (val <= max); } }, _class:"form-value", msg:"test", useLabels:false}
 ];
 
-var RulesById = function (id) {
-	for (var r = 0; r<Rules.length;++r) {
-		if (Rules[r].id === id) {
-			return Rules[r];
-		}
-	}
-};
+var RulesById = function (id) { for (var r = 0; r<Rules.length;++r) { if (Rules[r].id === id) { return Rules[r]; } } };
 
-/**
- * OpenVL class
- * @returns
- */
+/* OpenVL class */
 var OpenVL = function () {
 	var ovl = this;
 	this._options = {_form:document,_message:"",_allErrors:[],_focusBlur:true,uselabels:true,_msgType:"both"};
@@ -168,23 +184,22 @@ var OpenVL = function () {
 		}
 		
 	};
-	this._do = function (scope) {
+	this._do = function (scope,form) {
 		var test, parent = scope.parentNode, label = query("label",parent), labelText = '';
-		
 		if (ovl._options.uselabels !== false) {
 			for (var l = 0; l < label.length; ++l) {
 				if ((label[l].getAttribute('for') === scope.id || label[l].getAttribute('htmlFor') === scope.id)) {
-			            labelText = ReturnLabel(label[l]);
+					labelText = ReturnLabel(label[l]);
 				}
 			}
 		}
-		for (var r=0;r<Rules.length;++r){
-			if (hasClass(scope,Rules[r]._class)){
+		for (var r=0;r<Rules.length;++r) {
+			if (hasClass(scope,Rules[r]._class)) {
 				test = Rules[r].func(scope) && test;
 				if (test === false) {
 					var message = Rules[r].msg;
-					if (scope.getAttribute("data-" + Rules[r]._class +"-message")) { ovl._options.message = scope.getAttribute("data-" + Rules[r]._class +"-message"); } 
-					else if (Rules[r].useLabels === true) { ovl._options.message = labelText +" "+ message; } 
+					if (scope.getAttribute("data-" + Rules[r]._class +"-message")) { ovl._options.message = scope.getAttribute("data-" + Rules[r]._class +"-message"); }
+					else if (Rules[r].useLabels === true) { ovl._options.message = labelText +" "+ message;  } 
 					else { ovl._options.message = message; }
 					break;
 				}
@@ -195,7 +210,7 @@ var OpenVL = function () {
 	this._blur = function (ele,form) {
 		var parent = ele.parentNode, allErrorDivs = query('.err_box',form);
 		if (hasClass(parent.parentNode,"group")){parent = parent.parentNode;}
-		if (ovl._do(ele) === false && (hasClass(ele,RulesById('isRequired')._class) || ele.value !== "")){
+		if (ovl._do(ele,form) === false && (hasClass(ele,RulesById('isRequired')._class) || ele.value !== "")){
 			ovl.errors._build(ele,form);
 			allErrorDivs = query('.err_box',form);
 			if (allErrorDivs.length !== 0){ for (var errs=0; errs<allErrorDivs.length;++errs){ ovl.errors._hide(errs,form); } ovl.errors._show(0,form); } 
@@ -221,13 +236,14 @@ var OpenVL = function () {
 		}
 	};
 	this.exec = function (scope) {
+		ovl._options._allErrors = [];
 		if (typeof scope === "string") {scope = document.getElementById(scope);}
 		var allI = query('input,select,textarea',scope), noerrors = true, ali = allI.length;
 		for (var ai=0;ai<ali;++ai){
 			var aielm = allI[ai];
 			if (aielm.getAttribute("type") !== "submit" || aielm.getAttribute("type") !== "hidden" || aielm.nodeName === "BUTTON"){
 				if (hasClass(aielm,RulesById('isRequired')._class) || aielm.value !== ""){
-					if (ovl._do(aielm) === false){ ovl.errors._build(aielm,scope); noerrors=false;}
+					if (ovl._do(aielm,scope) === false){ ovl.errors._build(aielm,scope); noerrors=false;}
 					else { ovl.errors._clear(aielm,scope); }
 				}
 			}
@@ -255,19 +271,17 @@ var OpenVL = function () {
 		for (var fi=0;fi<fL;fi++) {
 			var thisForm = forms[fi], formInputs = query('input,select,textarea',thisForm),input;
 			for(var i=0;i<formInputs.length;++i) {
-				if (ovl._options._focusBlur === true){
-					input = formInputs[i]; input.onblur = ""; input.onfocus = "";
-				}
-				if(formInputs[i].getAttribute("type") != "submit") {
-					ovl.errors._clear(formInputs[i],scope);
-				}
+				if (ovl._options._focusBlur === true){ input = formInputs[i]; input.onblur = ""; input.onfocus = ""; }
+				if (formInputs[i].getAttribute("type") != "submit") { ovl.errors._clear(formInputs[i],scope); }
 			}
+			if (query('.MessageArea',form)) {form.removeChild(query('.MessageArea',form)[0]);}
 			if (forms[fi].nodeName === "FORM") { forms[fi].onsubmit = ""; }
 		}
 	};
 	this.errors = {
 		_build:function (scope,form) {
 			ovl._options._allErrors.push(ovl._options.message);
+			
 			var parent = scope.parentNode, errorDiv, newel, newelinner;
 			if (hasClass(parent.parentNode,"group")){parent = parent.parentNode;}
 			if (!hasClass(parent,'err_box')){ addClass(parent, "err_box");}
@@ -300,20 +314,26 @@ var OpenVL = function () {
 		_hide:function (index,form) { if (ovl._options._msgType === "both"||ovl._options._msgType === "inline"){ var errboxes = query('.err_box',form); query('.form_err_wrapper',errboxes[index])[0].style.display="none"; } },
 		_clear:function (scope,form) {
 			var parent = scope.parentNode;
-			if (hasClass(parent.parentNode,"group")){parent = parent.parentNode;}
+			if (hasClass(parent.parentNode,"group")) { parent = parent.parentNode; }
+			var ei = query('.err_box',form);
+			var ma = query('.MessageArea',form);
+			var mali = query('li',ma);
+			var mai = mali.length;
+			var sei = query('.form_err_msg',parent);
+			if (sei.length > 0) { var seit = sei[0].innerText || sei[0].textContent; }
+			
 			removeClass(parent, "err_box");
-			if (ovl._options._msgType === "both"||ovl._options._msgType === "inline"){
+			if (ovl._options._msgType === "both"|| ovl._options._msgType === "inline") {
 				if (query('.form_err_wrapper',parent).length !== 0){
 					parent.removeChild(query('.form_err_wrapper',parent)[0]);
 				}
 			}
-			var ei = query('.err_box',form);
+			
 			if ((ei.length) === 0) {
-				var ma = query('.MessageArea',form);
 				if((ma.length) !== 0) {ma.innerHTML="";}
 				ovl._options._allErrors=null;
 				ovl._options._allErrors=[];
-			}
+			} 
 		}
 	};
 };

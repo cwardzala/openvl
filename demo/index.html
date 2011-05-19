@@ -30,6 +30,8 @@
 							<button type="button" id="dis" onclick="var cv = new OpenVL(); cv.clearvalidation('#form'); cv=null;">Clear Validation</button>
 							<button type="button" id="re" onclick="var cv = new OpenVL(); cv.validate({_form:'#form'}); cv=null;">ReEnable Validation</button>
 						</div>
+						<input type="hidden" id="hidden1">
+						<input type="hidden" id="hidden2">
 					</div>
 				</form>
 				<h3>Form B</h3>
@@ -55,17 +57,21 @@
 			</div>
 		</div>
 		<div id="javascript">
+			<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js"></script>
+			<script src="http://ajax.googleapis.com/ajax/libs/dojo/1.4/dojo/dojo.xd.js.uncompressed.jsx"></script>
 			<script src="../src/OpenValidate.js"></script>
 			<script>
 				/**
-				 * Create new instance of the validator object 
+				 * Create new instance of the validator object for each form
 				 */
 				var ov = new OpenVL();
+				var ov2 = new OpenVL();
 				/**
 				 * Setup validation.
-				 * Just pass a class(s), id(s), or element name(s) along with any of the other optional params to the .validate() function.
+				 * Just pass a class, id, or element name along with any of the other optional params to the .validate() function.
 				 */
-				ov.validate({_form:"#form,form"});
+				ov.validate({_form:"#form"});
+				ov2.validate({_form:"#form2"});
 			</script>
 		</div>
 	</body>
