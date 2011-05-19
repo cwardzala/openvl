@@ -24,24 +24,24 @@ There are a few steps to setup your form for validation.
 Start with a form that has a unique ID with each form field and label combination wrapped in a div for inline messaging.
 
 ```html
-	<form id="formID" method="get/post" action="">
-		<div class="form">
-			<div class="spot">
-				<label for="input">Input</label><input id="input" class="form_req">
-			</div>
+<form id="formID" method="get/post" action="">
+	<div class="form">
+		<div class="spot">
+			<label for="input">Input</label><input id="input" class="form_req">
 		</div>
-	</form>
+	</div>
+</form>
 ```
 
 ### Step 2. Setup JavaScript
 Make sure you include the library before you make the calls to instantiate your validation.
 
 ```html
-	<script src="js/OpenValidate-version.js"></script>
+<script src="js/OpenValidate-version.js"></script>
 ```
 ```javascript
-	var oval = new OpenVL();
-	oval.validate({_form:"#formID"});
+var oval = new OpenVL();
+oval.validate({_form:"#formID"});
 ```
 When you call .validate() there are a few options you can pass to adjust how the validation will act.
 
@@ -63,8 +63,8 @@ Running the exec() function will execute a full form validation and return error
 You can pass either the ID string of the form or the actual DOM object.
 
 ```javascript
-	var oval = new OpenVL();
-	oval.exec("form");
+var oval = new OpenVL();
+oval.exec("form");
 ```
 
 ### `test(string/object)`
@@ -73,8 +73,8 @@ Running the test() function will execute a full form validation and return only 
 You can pass either the ID string of the form or the actual DOM object.
 
 ```javascript
-	var oval = new OpenVL();
-	oval.test("form");
+var oval = new OpenVL();
+oval.test("form");
 ```
 
 Clearing validation on a form
@@ -98,5 +98,5 @@ Using the HTML5 custom data attribute we can set custom messages for each form c
 Custom messages are set per rule per form control. The format is always `data-[rule class]-message=""`
 
 ```html
-	<input id="input" class="form-req" data-form-req-message="Custom message" />
+<input id="input" class="form-req" data-form-req-message="Custom message" />
 ```
