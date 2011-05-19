@@ -118,7 +118,7 @@ Anatomy of a rule
 Default Ruleset
 ---------------
 The default ruleset is only a small selection of the rules that can be used with the validator, so feel free to write your own. 
-If you would like to submit a rule to be included in the default ruleset for others to use please email me at cwardzala+openvl@gmail.com, include the rule in the above format along with description of the rule.
+If you would like to submit a rule to be included in the default ruleset for others to use please email me at cwardzala@gmail.com, include the rule in the above format along with description of the rule.
 
 ### Is Required
 Tests if the scope's value is null or has a length of zero.
