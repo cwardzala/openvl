@@ -207,7 +207,7 @@ var OpenVL = function () {
 				test = Rule.func(scope) && test;
 				if (test === false) {
 					var message = Rule.msg;
-					if (scope.getAttribute("data-" + Rule._class)) { ovl._options.message = scope.getAttribute("data-" + Rule._class); }
+					if (scope.getAttribute("data-" + Rule._class+"-message")) { ovl._options.message = scope.getAttribute("data-" + Rule._class+"-message"); }
 					else if (Rule.useLabels === true) { ovl._options.message = labelText +" "+ message;  } 
 					else { ovl._options.message = message; }
 					ovl._options._allErrors.push(ovl._options.message);
