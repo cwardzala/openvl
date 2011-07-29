@@ -127,7 +127,9 @@ var ReturnLabel					= function (ele)			{ if (ele !== undefined && ele.nodeType =
 var prepend						= function (ele,target)		{ if ( target.nodeType === 1 ) { target.insertBefore( ele, target.firstChild );} };
 var isBrowser					= function (string)			{return (navigator.userAgent.indexOf(string)>=0);};
 
-/* Rules */
+/* Rules 
+	Rule Template {id:"", func: function (scope) {}, _class:"form-url", msg:"", useLabels:false}
+*/
 var Rules = [
 	{id:"isRequired", func: function (scope) { return (scope.value === null) || (scope.value.length !== 0);}, _class:"form-req", msg:"is a required field.", useLabels:true},
 	{id:"isNumeric", func: function (scope) { var re = new RegExp(/^([0-9]\d*(\.|\,)\d*|0?(\.|\,)\d*[1-9]\d*|[0-9]\d*)$/); return re.test(scope.value);}, _class:"form-number", msg:"can only be a number.", useLabels:true},
@@ -135,16 +137,22 @@ var Rules = [
 	{id:"istheSame", func:function (scope) { var allSame = query('.form-same'), allSameVerify = query('.form-same_verify'), me = findIndex(scope,allSameVerify); if (scope.value !== allSame[me].value || scope.value === ""){this.msg = allSame[me].previousSibling.innerHTML+" and "+scope.previousSibling.innerHTML+" should be the same.";return false;}return true;}, _class:"form-same_verify", msg:"No Match", useLabels:false},
 	{id:"isChecked", func: function (scope) { var checkElms = document.getElementsByName(scope.name), cei, chx = []; for (cei=0;cei<checkElms.length;++cei){ if (checkElms[cei].checked !== false) {chx.push(checkElms[cei]);} } if (chx.length > 0) {return true;} else { return false; } }, _class:"form-check", msg:"You Must Choose an Option", useLabels:false},
 	{id:"isPhone", func: function (scope) {var re = /^(1\s*[\-\/\.]?)?(\((\d{3})\)|(\d{3}))\s*[\-\/\.]?\s*(\d{3})\s*[\-\/\.]?\s*(\d{4})\s*(([xX]|[eE][xX][tT])\.?\s*(\d+))*$/;return re.test(scope.value);}, _class:"form-phone", msg:"You must enter a valid phone number.", useLabels: false},
-	{id:"isLength", func: function (scope) { var str = scope.value; var min = parseInt(scope.getAttribute("min"),10); var max = parseInt(scope.getAttribute("max"),10); if (min === max){ this.msg = "Your input must be "+max+" characters in length"; return (str.length === min); } else { this.msg = "Your input must be between "+min+" and "+max; return (str.length >= min) && (str.length <= max); } }, _class:"form-length", msg:"you must only enter ## characters", useLabels:false},
-	{id:"isValue", func: function (scope) { var val = parseInt(scope.value,10), min = parseInt(scope.getAttribute("min"),10), max = parseInt(scope.getAttribute("max"),10); if (min === max) { return (val === min); } else { return (val >= min) && (val <= max); } }, _class:"form-value", msg:"test", useLabels:false}
+	{id:"isLength", func: function (scope) { var str = scope.value; var min = parseInt(scope.getAttribute("min"),10) || 1; var max = parseInt(scope.getAttribute("data-val-length-max"),10); if (min === max){ this.msg = "Your input must be "+max+" characters in length"; return (str.length === min); } else { this.msg = "Your input must be between "+min+" and "+max; return (str.length >= min) && (str.length <= max); } }, _class:"val-length", msg:"you must only enter ## characters", useLabels:false},
+	{id:"isValue", func: function (scope) { var val = parseInt(scope.value,10), min = parseInt(scope.getAttribute("min"),10), max = parseInt(scope.getAttribute("max"),10); if (min === max) { return (val === min); } else { return (val >= min) && (val <= max); } }, _class:"form-value", msg:"test", useLabels:false},
+	{id:"isURL", func: function (scope) {
+		var re = /(https?:\/\/)?(www\.)?([a-zA-Z0-9_%-]*)\b\.[a-z]{2,4}(\.[a-z]{2})?((\/[a-zA-Z0-9_%-]*)+)?(\.[a-z]*)?/;
+		return re.test(scope.value);
+	}, _class:"form-url", msg:"", useLabels:false}
 ];
 
+
 var RulesById = function (id) { for (var r = 0; r<Rules.length;++r) { if (Rules[r].id === id) { return Rules[r]; } } };
+var RulesByClass = function (cls) { for (var r = 0; r<Rules.length;++r) { if (Rules[r]._class === cls) { return Rules[r]; } } };
 
 /* OpenVL class */
-var OpenVL = function () {
+var OpenVL = function () { 
 	var ovl = this;
-	this._options = {_form:document,_message:"",_allErrors:[],_focusBlur:true,uselabels:true,_msgType:"both"};
+	this._options = {_form:document,_message:"",_allErrors:[],_focusBlur:true,uselabels:true,_msgType:"both", _autoHideMsg:true};
 	this.validate = function (options) {
 		ovl._options = extend(ovl._options, options);
 		var forms = query(ovl._options._form), fL = forms.length;
@@ -169,7 +177,7 @@ var OpenVL = function () {
 				}
 			}
 			if (forms[fi].nodeName === "FORM") {
-				forms[fi].setAttribute('novalidate','');
+				forms[fi].setAttribute('novalidate',''); // disables browser based validation.
 				var oldHandler = forms[fi].onsubmit;
 				forms[fi].onsubmit = function(e) {
 					if(oldHandler){
@@ -185,7 +193,7 @@ var OpenVL = function () {
 		
 	};
 	this._do = function (scope,form) {
-		var test, parent = scope.parentNode, label = query("label",parent), labelText = '';
+		var test, parent = scope.parentNode, label = query("label",parent), labelText = '', classes = scope.className.split(' ');
 		if (ovl._options.uselabels !== false) {
 			for (var l = 0; l < label.length; ++l) {
 				if ((label[l].getAttribute('for') === scope.id || label[l].getAttribute('htmlFor') === scope.id)) {
@@ -193,14 +201,16 @@ var OpenVL = function () {
 				}
 			}
 		}
-		for (var r=0;r<Rules.length;++r) {
-			if (hasClass(scope,Rules[r]._class)) {
-				test = Rules[r].func(scope) && test;
+		for (var r=0;r<classes.length;++r) {
+			var Rule = RulesByClass(classes[r]) || null;
+			if (Rule !== null) {
+				test = Rule.func(scope) && test;
 				if (test === false) {
-					var message = Rules[r].msg;
-					if (scope.getAttribute("data-" + Rules[r]._class +"-message")) { ovl._options.message = scope.getAttribute("data-" + Rules[r]._class +"-message"); }
-					else if (Rules[r].useLabels === true) { ovl._options.message = labelText +" "+ message;  } 
+					var message = Rule.msg;
+					if (scope.getAttribute("data-" + Rule._class)) { ovl._options.message = scope.getAttribute("data-" + Rule._class); }
+					else if (Rule.useLabels === true) { ovl._options.message = labelText +" "+ message;  } 
 					else { ovl._options.message = message; }
+					ovl._options._allErrors.push(ovl._options.message);
 					break;
 				}
 			}
@@ -241,7 +251,7 @@ var OpenVL = function () {
 		var allI = query('input,select,textarea',scope), noerrors = true, ali = allI.length;
 		for (var ai=0;ai<ali;++ai){
 			var aielm = allI[ai];
-			if (aielm.getAttribute("type") !== "submit" || aielm.getAttribute("type") !== "hidden" || aielm.nodeName === "BUTTON"){
+			if (aielm.getAttribute("type") !== "submit" && aielm.getAttribute("type") !== "hidden"){
 				if (hasClass(aielm,RulesById('isRequired')._class) || aielm.value !== ""){
 					if (ovl._do(aielm,scope) === false){ ovl.errors._build(aielm,scope); noerrors=false;}
 					else { ovl.errors._clear(aielm,scope); }
@@ -258,7 +268,7 @@ var OpenVL = function () {
 		var allI = query('input,select,textarea',scope), noerrors = true, ali = allI.length;
 		for (var ai=0;ai<ali;++ai){
 			var aielm = allI[ai];
-			if (aielm.type !== "submit" || aielm.type !== "hidden"){
+			if (aielm.type !== "submit" && aielm.type !== "hidden"){
 				if (hasClass(aielm,RulesById('isRequired')._class) || aielm.value !== ""){
 					if (ovl._do(aielm) === false){ noerrors=false; }
 				}
@@ -274,7 +284,7 @@ var OpenVL = function () {
 				if (ovl._options._focusBlur === true){ input = formInputs[i]; input.onblur = ""; input.onfocus = ""; }
 				if (formInputs[i].getAttribute("type") != "submit") { ovl.errors._clear(formInputs[i],scope); }
 			}
-			if (query('.MessageArea',form)) {form.removeChild(query('.MessageArea',form)[0]);}
+			if (query('.MessageArea',thisForm).length !== 0) {thisForm.removeChild(query('.MessageArea',thisForm)[0]);}
 			if (forms[fi].nodeName === "FORM") { forms[fi].onsubmit = ""; }
 		}
 	};
@@ -311,7 +321,12 @@ var OpenVL = function () {
 				query('.form_err_wrapper',errboxes[index])[0].style.display="block";
 			}			
 		},
-		_hide:function (index,form) { if (ovl._options._msgType === "both"||ovl._options._msgType === "inline"){ var errboxes = query('.err_box',form); query('.form_err_wrapper',errboxes[index])[0].style.display="none"; } },
+		_hide:function (index,form) {
+			if ((ovl._options._msgType === "both"||ovl._options._msgType === "inline") && ovl._options._autoHideMsg === true){ 
+				var errboxes = query('.err_box',form); 
+				query('.form_err_wrapper',errboxes[index])[0].style.display="none"; 
+			} 
+		},
 		_clear:function (scope,form) {
 			var parent = scope.parentNode;
 			if (hasClass(parent.parentNode,"group")) { parent = parent.parentNode; }

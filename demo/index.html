@@ -16,6 +16,7 @@
 				<h3>Form A</h3>
 				<form action="" method="get" id="form">
 					<div class="form">
+						<input type="hidden" id="hidden1" value="hidden1">
 						<div class="spot"><label for="Name"><span class="req">*</span> Name</label><input type="text" id="Name" class="form-req" data-form-req-message="Custom message for form-req rule."></div>
 						<div class="spot"><label for="PhoneNumber">Phone Number</label><input type="text" id="PhoneNumber" class="form-phone"></div>
 						<div class="spot"><label for="Email"><span class="req">*</span> Email</label><input type="email" id="Email" class="form-req form-email"></div>
@@ -30,8 +31,8 @@
 							<button type="button" id="dis" onclick="var cv = new OpenVL(); cv.clearvalidation('#form'); cv=null;">Clear Validation</button>
 							<button type="button" id="re" onclick="var cv = new OpenVL(); cv.validate({_form:'#form'}); cv=null;">ReEnable Validation</button>
 						</div>
-						<input type="hidden" id="hidden1">
-						<input type="hidden" id="hidden2">
+						
+						<input type="hidden" id="hidden2" value="hidden2">
 					</div>
 				</form>
 				<h3>Form B</h3>
