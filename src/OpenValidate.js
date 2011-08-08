@@ -138,7 +138,7 @@ var Rules = [
 	{id:"istheSame", func:function (scope) { var allSame = query('.form-same'), allSameVerify = query('.form-same_verify'), me = findIndex(scope,allSameVerify); if (scope.value !== allSame[me].value || scope.value === ""){this.msg = ovlPreviousSibling(allSame[me]).innerHTML+" and "+ovlPreviousSibling(scope).innerHTML+" should be the same.";return false;}return true;}, _class:"form-same_verify", msg:"No Match", useLabels:false},
 	{id:"isChecked", func: function (scope) { var checkElms = document.getElementsByName(scope.name), cei, chx = []; for (cei=0;cei<checkElms.length;++cei){ if (checkElms[cei].checked !== false) {chx.push(checkElms[cei]);} } if (chx.length > 0) {return true;} else { return false; } }, _class:"form-check", msg:"You Must Choose an Option", useLabels:false},
 	{id:"isPhone", func: function (scope) {var re = /^(1\s*[\-\/\.]?)?(\((\d{3})\)|(\d{3}))\s*[\-\/\.]?\s*(\d{3})\s*[\-\/\.]?\s*(\d{4})\s*(([xX]|[eE][xX][tT])\.?\s*(\d+))*$/;return re.test(scope.value);}, _class:"form-phone", msg:"You must enter a valid phone number.", useLabels: false},
-	{id:"isLength", func: function (scope) { var str = scope.value; var min = parseInt(scope.getAttribute("min"),10) || 1; var max = parseInt(scope.getAttribute("data-val-length-max"),10); if (min === max){ this.msg = "Your input must be "+max+" characters in length"; return (str.length === min); } else { this.msg = "Your input must be between "+min+" and "+max; return (str.length >= min) && (str.length <= max); } }, _class:"val-length", msg:"you must only enter ## characters", useLabels:false},
+	{id:"isLength", func: function (scope) { var str = scope.value; var min = parseInt(scope.getAttribute("min"),10) || 1; var max = parseInt(scope.getAttribute("max"),10); if (min === max){ this.msg = "Your input must be "+max+" characters in length"; return (str.length === min); } else { this.msg = "Your input must be between "+min+" and "+max; return (str.length >= min) && (str.length <= max); } }, _class:"val-length", msg:"you must only enter ## characters", useLabels:false},
 	{id:"isValue", func: function (scope) { var val = parseInt(scope.value,10), min = parseInt(scope.getAttribute("min"),10), max = parseInt(scope.getAttribute("max"),10); if (min === max) { return (val === min); } else { return (val >= min) && (val <= max); } }, _class:"form-value", msg:"test", useLabels:false},
 	{id:"isURL", func: function (scope) {
 		var re = /(https?:\/\/)?(www\.)?([a-zA-Z0-9_%-]*)\b\.[a-z]{2,4}(\.[a-z]{2})?((\/[a-zA-Z0-9_%-]*)+)?(\.[a-z]*)?/;
@@ -153,7 +153,7 @@ var RulesByClass = function (cls) { for (var r = 0; r<Rules.length;++r) { if (Ru
 /* OpenVL class */
 var OpenVL = function () { 
 	var ovl = this;
-	this._options = {_form:document,_message:"",_allErrors:[],_focusBlur:true,uselabels:true,_msgType:"both", _autoHideMsg:true};
+	this._options = {_form:document,_message:"",_allErrors:[],_focusBlur:true,uselabels:true,_msgType:"both", _autoHideMsg:true, focusOnSubmitError: true};
 	this.validate = function (options) {
 		ovl._options = extend(ovl._options, options);
 		var forms = query(ovl._options._form), fL = forms.length;
@@ -282,8 +282,10 @@ var OpenVL = function () {
 		for (var fi=0;fi<fL;fi++) {
 			var thisForm = forms[fi], formInputs = query('input,select,textarea',thisForm),input;
 			for(var i=0;i<formInputs.length;++i) {
-				if (ovl._options._focusBlur === true){ input = formInputs[i]; input.onblur = ""; input.onfocus = ""; }
-				if (formInputs[i].getAttribute("type") != "submit") { ovl.errors._clear(formInputs[i],scope); }
+				if (formInputs[i].type !== "submit" && formInputs[i].type !== "hidden"){
+					if (ovl._options._focusBlur === true){ input = formInputs[i]; input.onblur = ""; input.onfocus = ""; }
+					if (formInputs[i].getAttribute("type") != "submit") { ovl.errors._clear(formInputs[i],scope); }
+				}
 			}
 			if (query('.MessageArea',thisForm).length !== 0) {thisForm.removeChild(query('.MessageArea',thisForm)[0]);}
 			if (forms[fi].nodeName === "FORM") { forms[fi].onsubmit = ""; }
@@ -317,30 +319,34 @@ var OpenVL = function () {
 			}
 		},
 		_show:function (index,form) {
+			var errboxes = query('.err_box',form);
 			if (ovl._options._msgType === "both" || ovl._options._msgType === "inline"){
-				var errboxes = query('.err_box',form);
 				query('.form_err_wrapper',errboxes[index])[0].style.display="block";
-			}			
+			}
+			if (ovl._options.focusOnSubmitError === true) {
+				query('input, textarea, select',errboxes[0])[0].focus();
+			}
 		},
 		_hide:function (index,form) {
-			if ((ovl._options._msgType === "both"||ovl._options._msgType === "inline") && ovl._options._autoHideMsg === true){ 
+			if ((ovl._options._msgType === "both"||ovl._options._msgType === "inline") && ovl._options._autoHideMsg === true) { 
 				var errboxes = query('.err_box',form); 
 				query('.form_err_wrapper',errboxes[index])[0].style.display="none"; 
 			} 
 		},
 		_clear:function (scope,form) {
-			var parent = scope.parentNode;
+			var parent = scope.parentNode,
+				ei = query('.err_box',form),
+				ma = query('.MessageArea',form),
+				mali = query('li',ma),
+				mai = mali.length,
+				sei = query('.form_err_msg',parent),
+				seit = '';
 			if (hasClass(parent.parentNode,"group")) { parent = parent.parentNode; }
-			var ei = query('.err_box',form);
-			var ma = query('.MessageArea',form);
-			var mali = query('li',ma);
-			var mai = mali.length;
-			var sei = query('.form_err_msg',parent);
-			if (sei.length > 0) { var seit = sei[0].innerText || sei[0].textContent; }
+			if (sei.length > 0) { seit = sei[0].innerText || sei[0].textContent; }
 			
 			removeClass(parent, "err_box");
 			if (ovl._options._msgType === "both"|| ovl._options._msgType === "inline") {
-				if (query('.form_err_wrapper',parent).length !== 0){
+				if (query('.form_err_wrapper',parent).length !== 0) {
 					parent.removeChild(query('.form_err_wrapper',parent)[0]);
 				}
 			}
