@@ -52,6 +52,8 @@ When you call .validate() there are a few options you can pass to adjust how the
 	* "inline" will only show a message next to the form field.
 	* "list" will only show an unordered list of all errors above the form.
 	* "both" both message types will be used.
+5. `_autoHideMsg`: Sets if messages should auto hide and only show one message at a time. Default: `true`
+6. `focusOnSubmitError`: Sets if the form should auto focus the first error on submit. Default: `true`
 	
 On demand usage
 ---------------
