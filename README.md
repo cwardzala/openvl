@@ -37,7 +37,7 @@ Start with a form that has a unique ID with each form field and label combinatio
 Make sure you include the library before you make the calls to instantiate your validation.
 
 ```html
-<script src="js/OpenValidate-version.js"></script>
+<script src="js/OpenValidate.js"></script>
 ```
 ```javascript
 var oval = new OpenVL();
