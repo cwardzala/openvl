@@ -191,7 +191,6 @@ var OpenVL = function () {
 				}
 			}
 		}
-		
 	};
 	this._do = function (scope,form) {
 		var test, parent = scope.parentNode, label = query("label",parent), labelText = '', classes = scope.className.split(' ');
@@ -253,7 +252,7 @@ var OpenVL = function () {
 		for (var ai=0;ai<ali;++ai){
 			var aielm = allI[ai];
 			if (aielm.getAttribute("type") !== "submit" && aielm.getAttribute("type") !== "hidden"){
-				if (hasClass(aielm,RulesById('isRequired')._class) || aielm.value !== ""){
+				if ( (aielm.getAttribute('required') === 'required') || aielm.value !== "" ){
 					if (ovl._do(aielm,scope) === false){ ovl.errors._build(aielm,scope); noerrors=false;}
 					else { ovl.errors._clear(aielm,scope); }
 				}
