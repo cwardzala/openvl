@@ -120,15 +120,17 @@ var query = function (string,scope) {
 var unique						= function (a)				{ var r = [],i,x,y,n; o:for(i = 0, n = a.length; i < n; i++){ for(x = 0, y = r.length; x < y; x++){ if(r[x]===a[i]) {continue o;} } r[r.length] = a[i]; } return r; };
 var findIndex					= function (ele,arr)		{ var ctr = "",i; for (i=0; i < arr.length; i++) { if (arr[i] === ele) { return i; } } return ctr; };
 var extend						= function (obj, extObj)	{ var i,a; if (arguments.length > 2) { for (a = 1; a < arguments.length; a++) { extend(obj, arguments[a]); } } else { for (i in extObj) { obj[i] = extObj[i]; } } return obj; };
-var hasClass					= function (ele,cls)		{return ele.className.match(new RegExp('(\\s|^)'+cls+'(\\s|$)')); };
+var hasClass					= function (ele,cls)		{ return ele.className.match(new RegExp('(\\s|^)'+cls+'(\\s|$)')); };
 var addClass					= function (ele,cls)		{ if (!hasClass(ele,cls)) { ele.className += " "+cls;} };
 var removeClass					= function (ele,cls)		{ if (hasClass(ele,cls)) { var reg = new RegExp('(\\s|^)'+cls+'(\\s|$)'); ele.className=ele.className.replace(reg,' '); } };
 var ReturnLabel					= function (ele)			{ if (ele !== undefined && ele.nodeType === 1 && ele.nodeName === "LABEL") { var text = ele.innerText || ele.textContent; return text.replace(/\([^)]* \)/g,'').replace(/[^a-zA-Z 0-9]+/g,'').replace(/^\s*|\s*$/g,'');} };
 var prepend						= function (ele,target)		{ if ( target.nodeType === 1 ) { target.insertBefore( ele, target.firstChild );} };
-var isBrowser					= function (string)			{return (navigator.userAgent.indexOf(string)>=0);};
-var ovlPreviousSibling			= function(o)				{ do o = o.previousSibling; while (o && o.nodeType != 1); return o; }
+var isBrowser					= function (string)			{ return (navigator.userAgent.indexOf(string)>=0);};
+var ovlPreviousSibling			= function (o)				{ do o = o.previousSibling; while (o && o.nodeType != 1); return o; }
+var parentNode					= function (ele)			{ var parent = ele.parentNode; if ( hasClass(parent.parentNode,"group") ) {parent = parent.parentNode;} return parent; }
 
-/* Rules 
+/**
+ 	Rules 
 	Rule Template {id:"", func: function (scope) {}, _class:"form-url", msg:"", useLabels:false}
 */
 var Rules = [
@@ -160,12 +162,13 @@ var OpenVL = function () {
 		var forms = query(ovl._options._form), fL = forms.length;
 		for (var fi=0;fi<fL;fi++) {
 			if (ovl._options._focusBlur === true){
-				var formInputs = query('input,select,textarea',forms[fi]), fil = formInputs.length;
+				var formInputs = query('input,select,textarea',forms[fi]), fil = formInputs.length, type;
 				for(var i=0;i<fil;++i) {
-					if(formInputs[i].getAttribute("type") !== "submit") {
+					type = formInputs[i].getAttribute("type");
+					if(type !== "submit") {
 						formInputs[i].onblur = (function(f) { return function(){ ovl._blur(this,f); }; })(forms[fi]);
 						formInputs[i].onfocus = (function(f) { return function(){ ovl._focus(this,f); }; })(forms[fi]);
-						if (isBrowser("Safari") && (formInputs[i].getAttribute("type") === "radio" || formInputs[i].getAttribute("type") === "checkbox")) {
+						if (isBrowser("Safari") && (type === "radio" || type === "checkbox")) {
 							formInputs[i].onclick = (function(f) { return function(){ ovl._blur(this,f); }; })(forms[fi]);
 						}
 					}
@@ -196,7 +199,7 @@ var OpenVL = function () {
 		
 	};
 	this._do = function (scope,form) {
-		var test, parent = scope.parentNode, label = query("label",parent), labelText = '', classes = scope.className.split(' ');
+		var test, parent = parentNode(scope), label = query("label",parent), labelText = '', classes = scope.className.split(' ');
 		if (ovl._options.uselabels !== false) {
 			for (var l = 0; l < label.length; ++l) {
 				if ((label[l].getAttribute('for') === scope.id || label[l].getAttribute('htmlFor') === scope.id)) {
@@ -222,8 +225,7 @@ var OpenVL = function () {
 	};
 	this._blur = function (ele,form) {
 		ovl.currentEvent = (ovl.currentEvent === 'blur') ? ovl.currentEvent : 'blur';
-		var parent = ele.parentNode, allErrorDivs = query('.err_box',form);
-		if (hasClass(parent.parentNode,"group")){parent = parent.parentNode;}
+		var parent = parentNode(ele), allErrorDivs = query('.err_box',form);
 		if (ovl._do(ele,form) === false && (hasClass(ele,RulesById('isRequired')._class) || ele.value !== "")){
 			ovl.errors._build(ele,form);
 			allErrorDivs = query('.err_box',form);
@@ -236,11 +238,10 @@ var OpenVL = function () {
 		}
 	};
 	this._focus = function (ele,form) {
-		var parent = ele.parentNode;
-		if (hasClass(parent.parentNode,"group")){parent = parent.parentNode;}
-		var allErrorDivs = query('.form_err_wrapper',form);
-		var allerrs = query('.err_box',form);
-		var eindex = findIndex(parent, allerrs);
+		var parent = parentNode(ele),
+			allErrorDivs = query('.form_err_wrapper',form),
+			allerrs = query('.err_box',form),
+			eindex = findIndex(parent, allerrs);
 		if (hasClass(parent,"err_box")){ 
 			allerrs = query('.err_box',form);
 			for (var errs=0; errs<allErrorDivs.length;++errs) { 
@@ -254,9 +255,9 @@ var OpenVL = function () {
 		if (typeof scope === "string") {scope = document.getElementById(scope);}
 		var allI = query('input,select,textarea',scope), noerrors = true, ali = allI.length;
 		for (var ai=0;ai<ali;++ai){
-			var aielm = allI[ai];
-			if (aielm.getAttribute("type") !== "submit" && aielm.getAttribute("type") !== "hidden"){
-				if (hasClass(aielm,RulesById('isRequired')._class) || ((aielm.type !== 'radio' && aielm.type !== 'checkbox') && aielm.value !== "") ){
+			var aielm = allI[ai], aitype = aielm.getAttribute("type");
+			if ( aitype !== "submit" && aitype !== "hidden"){
+				if (hasClass(aielm,RulesById('isRequired')._class) || ((aitype !== 'radio' && aitype !== 'checkbox') && aielm.value !== "") ){
 					if (ovl._do(aielm,scope) === false){ ovl.errors._build(aielm,scope); noerrors=false;}
 					else { ovl.errors._clear(aielm,scope); }
 				}
@@ -272,8 +273,8 @@ var OpenVL = function () {
 		var allI = query('input,select,textarea',scope), noerrors = true, ali = allI.length;
 		for (var ai=0;ai<ali;++ai){
 			var aielm = allI[ai];
-			if (aielm.type !== "submit" && aielm.type !== "hidden"){
-				if ( hasClass(aielm,RulesById('isRequired')._class) || ((aielm.type !== 'radio' && aielm.type !== 'checkbox') && aielm.value !== "") ){
+			if (aielm.getAttribute("type") !== "submit" && aielm.getAttribute("type") !== "hidden"){
+				if ( hasClass(aielm,RulesById('isRequired')._class) || ((aielm.getAttribute("type") !== 'radio' && aielm.getAttribute("type") !== 'checkbox') && aielm.value !== "") ){
 					if (ovl._do(aielm) === false){ noerrors=false; }
 				}
 			}
@@ -285,7 +286,7 @@ var OpenVL = function () {
 		for (var fi=0;fi<fL;fi++) {
 			var thisForm = forms[fi], formInputs = query('input,select,textarea',thisForm),input;
 			for(var i=0;i<formInputs.length;++i) {
-				if (formInputs[i].type !== "submit" && formInputs[i].type !== "hidden"){
+				if (formInputs[i].getAttribute("type") !== "submit" && formInputs[i].getAttribute("type") !== "hidden"){
 					if (ovl._options._focusBlur === true){ input = formInputs[i]; input.onblur = ""; input.onfocus = ""; }
 					if (formInputs[i].getAttribute("type") != "submit") { ovl.errors._clear(formInputs[i],scope); }
 				}
@@ -298,8 +299,7 @@ var OpenVL = function () {
 		_build:function (scope,form) {
 			ovl._options._allErrors.push(ovl._options.message);
 			
-			var parent = scope.parentNode, errorDiv, newel, newelinner;
-			if (hasClass(parent.parentNode,"group")){parent = parent.parentNode;}
+			var parent = parentNode(scope), errorDiv, newel, newelinner;
 			if (!hasClass(parent,'err_box')){ addClass(parent, "err_box");}
 			if (ovl._options._msgType === "both" || ovl._options._msgType === "inline"){
 				if (query('.form_err_wrapper',parent).length === 0){
@@ -337,16 +337,14 @@ var OpenVL = function () {
 			} 
 		},
 		_clear:function (scope,form) {
-			var parent = scope.parentNode,
+			var parent = parentNode(scope),
 				ei = query('.err_box',form),
 				ma = query('.MessageArea',form),
 				mali = query('li',ma),
 				mai = mali.length,
 				sei = query('.form_err_msg',parent),
 				seit = '';
-			if (hasClass(parent.parentNode,"group")) { parent = parent.parentNode; }
 			if (sei.length > 0) { seit = sei[0].innerText || sei[0].textContent; }
-			
 			removeClass(parent, "err_box");
 			if (ovl._options._msgType === "both"|| ovl._options._msgType === "inline") {
 				if (query('.form_err_wrapper',parent).length !== 0) {
