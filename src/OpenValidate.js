@@ -262,7 +262,9 @@ var OpenVL = function (form) {
 				ovl.errors.show(eindex,form);
 			}
 		};
-		this.exec = function () {
+		this.exec = function (options) {
+			options = options || null;
+			if (options !== null) { ovl.opts = extend(ovl.opts, options); }
 			var scope = ovl.$form;
 			ovl.AllErrors = [];
 			if (typeof scope === "string") {scope = document.getElementById(scope);}
@@ -319,7 +321,6 @@ var OpenVL = function (form) {
 			},
 			build:function (scope) {
 				//ovl.AllErrors.push(ovl.opts.message);
-				console.log(ovl.AllErrors);
 				var form = ovl.$form, parent = parentNode(scope), errorDiv = ovl.errors.inlineTmpl(ovl.opts.message);
 				if (!hasClass(parent,'err_box')){ addClass(parent, "err_box");}
 				if (ovl.opts.msgType === "both" || ovl.opts.msgType === "inline"){

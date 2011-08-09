@@ -40,55 +40,50 @@ Make sure you include the library before you make the calls to instantiate your 
 <script src="js/OpenValidate.js"></script>
 ```
 ```javascript
-var oval = new OpenVL();
-oval.validate({_form:"#formID"});
+OpenVL("css id,class or element").validate({options});
 ```
 When you call .validate() there are a few options you can pass to adjust how the validation will act.
 
-1. `_form`: This is the ID, class, or element name of the form you want to validate. Default: `document`
-2. `_focusBlur`: Sets whether the validation should run on blur of a form element. Default: `true`
-3. `uselabels`: Sets whether to use the form labels as part of the error messages. Default: `true`
-4. `_msgType`: Sets the messaging type for the form. Default `both`
+1. `focusBlur`: Sets whether the validation should run on blur of a form element. Default: `true`
+2. `uselabels`: Sets whether to use the form labels as part of the error messages. Default: `true`
+3. `msgType`: Sets the messaging type for the form. Default `both`
 	* "inline" will only show a message next to the form field.
 	* "list" will only show an unordered list of all errors above the form.
 	* "both" both message types will be used.
-5. `_autoHideMsg`: Sets if messages should auto hide and only show one message at a time. Default: `true`
-6. `focusOnSubmitError`: Sets if the form should auto focus the first error on submit. Default: `true`
+4. `autoHideMsg`: Sets if messages should auto hide and only show one message at a time. Default: `true`
+5. `focusOnSubmitError`: Sets if the form should auto focus the first error on submit. Default: `true`
 	
 On demand usage
 ---------------
 There are two ways to call validation on demand
 
-### `exec(string/object)`
+### `exec()`
 Running the exec() function will execute a full form validation and return error messaging.
 
 You can pass either the ID string of the form or the actual DOM object.
 
 ```javascript
-var oval = new OpenVL();
-oval.exec("form");
+OpenVL("css id,class or element").exec();
 ```
 
-### `test(string/object)`
+### `test()`
 Running the test() function will execute a full form validation and return only true or false if the entire form is either valid or invalid respectively.
 
 You can pass either the ID string of the form or the actual DOM object.
 
 ```javascript
-var oval = new OpenVL();
-oval.test("form");
+OpenVL("css id,class or element").test();
 ```
 
 Clearing validation on a form
 -----------------------------
 
-### `clearvalidation(string/object)`
+### `clearvalidation()`
 Running the clearvalidation() function will remove all validation functions from the form.
 You can pass either the ID string of the form or the actual DOM object.
 
 ```javascript
-var oval = new OpenVL();
-oval.clearvalidation("form");
+OpenVL("css id,class or element").clearvalidation();
 ```
 
 Custom Messaging

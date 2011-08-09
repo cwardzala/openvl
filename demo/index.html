@@ -31,7 +31,7 @@
 						</div>
 						<div class="spot "><button type="submit" id="Submit">Submit</button>
 							<button type="button" id="dis" onclick="OpenVL('#form').clearvalidation();">Clear Validation</button>
-							<button type="button" id="re" onclick="var cv = new OpenVL(); cv.validate({_form:'#form'}); cv=null;">ReEnable Validation</button>
+							<button type="button" id="re" onclick="OpenVL('#form').validate(window.osettings);">ReEnable Validation</button>
 						</div>
 						
 						<input type="hidden" id="hidden2" value="hidden2">
@@ -65,15 +65,12 @@
 			<script src="../src/OpenValidate.js"></script>
 			<script>
 				/**
-				 * Create new instance of the validator object for each form
-				 */
-				var ov2 = OpenVL('#form2');
-				/**
 				 * Setup validation.
 				 * Just pass a class, id, or element name along with any of the other optional params to the .validate() function.
 				 */
-				OpenVL('#form').validate({_form:"#form"});
-				ov2.validate({_form:"#form2"});
+				window.osettings = {msgType:'inline'};
+				OpenVL('#form').validate(window.osettings);
+				OpenVL('#form2').validate();
 			</script>
 		</div>
 	</body>
