@@ -252,7 +252,7 @@ var OpenVL = function () {
 		for (var ai=0;ai<ali;++ai){
 			var aielm = allI[ai];
 			if (aielm.getAttribute("type") !== "submit" && aielm.getAttribute("type") !== "hidden"){
-				if ( (aielm.getAttribute('required') === 'required') || aielm.value !== "" ){
+				if ( (aielm.getAttribute('required') === 'required') || (aielm.getAttribute('required') !== 'required' && aielm.value !== "") ){
 					if (ovl._do(aielm,scope) === false){ ovl.errors._build(aielm,scope); noerrors=false;}
 					else { ovl.errors._clear(aielm,scope); }
 				}
@@ -269,7 +269,7 @@ var OpenVL = function () {
 		for (var ai=0;ai<ali;++ai){
 			var aielm = allI[ai];
 			if (aielm.type !== "submit" && aielm.type !== "hidden"){
-				if (hasClass(aielm,RulesById('isRequired')._class) || aielm.value !== ""){
+				if ( (aielm.getAttribute('required') === 'required') || ((aielm.getAttribute('type') !== 'checkbox' || aielm.getAttribute('type') !== 'radio') && aielm.value !== "") ){
 					if (ovl._do(aielm) === false){ noerrors=false; }
 				}
 			}
@@ -281,9 +281,9 @@ var OpenVL = function () {
 		for (var fi=0;fi<fL;fi++) {
 			var thisForm = forms[fi], formInputs = query('input,select,textarea',thisForm),input;
 			for(var i=0;i<formInputs.length;++i) {
-				if (formInputs[i].type !== "submit" && formInputs[i].type !== "hidden"){
+				if (formInputs[i].type !== "submit" && formInputs[i].type !== "hidden") {
 					if (ovl._options._focusBlur === true){ input = formInputs[i]; input.onblur = ""; input.onfocus = ""; }
-					if (formInputs[i].getAttribute("type") != "submit") { ovl.errors._clear(formInputs[i],scope); }
+					if (formInputs[i].getAttribute("type") !== "submit") { ovl.errors._clear(formInputs[i],scope); }
 				}
 			}
 			if (query('.MessageArea',thisForm).length !== 0) {thisForm.removeChild(query('.MessageArea',thisForm)[0]);}
