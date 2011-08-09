@@ -95,7 +95,7 @@ Using the HTML5 custom data attribute we can set custom messages for each form c
 Custom messages are set per rule per form control. The format is always `data-[rule class]-message=""`
 
 ```html
-<input id="input" class="form-req" data-form-req-message="Custom message" />
+<input id="input" data-ovl-rules="form-req" data-form-req-message="Custom message" />
 ```
 
 Anatomy of a rule
