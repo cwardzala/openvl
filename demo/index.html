@@ -30,7 +30,7 @@
 							<div class="spot"><input type="radio" name="radios" data-ovl-rules="radio form-req form-check" required="required" id="radio3" value="r3"><label for="radio3">Radiobutton 3</label></div>
 						</div>
 						<div class="spot "><button type="submit" id="Submit">Submit</button>
-							<button type="button" id="dis" onclick="var cv = new OpenVL(); cv.clearvalidation('#form'); cv=null;">Clear Validation</button>
+							<button type="button" id="dis" onclick="OpenVL('#form').clearvalidation();">Clear Validation</button>
 							<button type="button" id="re" onclick="var cv = new OpenVL(); cv.validate({_form:'#form'}); cv=null;">ReEnable Validation</button>
 						</div>
 						
@@ -40,7 +40,7 @@
 				<h3>Form B</h3>
 				<form action="" method="get" id="form2">
 					<div class="form">
-						<div class="spot"><label for="Name2"><span class="req">*</span> Name</label><input type="text" id="Name2" class="form-req"></div>
+						<div class="spot"><label for="Name2"><span class="req">*</span> Name</label><input type="text" id="Name2" data-ovl-rules="form-req" data-form-req-message="Test" required="required"></div>
 						<div class="spot"><label for="PhoneNumber2">Phone Number</label><input type="text" id="PhoneNumber2" class="form-phone"></div>
 						<div class="spot"><label for="Email2"><span class="req">*</span> Email</label><input type="email" id="Email2" class="form-req form-email"></div>
 						<div class="spot"><label for="State2"><span class="req">*</span> State</label><select id="State2" class="form-req"><option value="">Select</option><option value="AL">AL</option><option value="AK">AK</option><option value="AZ">AZ</option><option value="AR">AR</option><option value="CA">CA</option><option value="CO">CO</option><option value="CT">CT</option><option value="DE">DE</option><option value="DC">DC</option><option value="FL">FL</option><option value="GA">GA</option><option value="HI">HI</option><option value="ID">ID</option><option value="IL">IL</option><option value="IN">IN</option><option value="IA">IA</option><option value="KS">KS</option><option value="KY">KY</option><option value="LA">LA</option><option value="ME">ME</option><option value="MD">MD</option><option value="MA">MA</option><option value="MI">MI</option><option value="MN">MN</option><option value="MS">MS</option><option value="MO">MO</option><option value="MT">MT</option><option value="NE">NE</option><option value="NV">NV</option><option value="NH">NH</option><option value="NJ">NJ</option><option value="NM">NM</option><option value="NY">NY</option><option value="NC">NC</option><option value="ND">ND</option><option value="OH">OH</option><option value="OK">OK</option><option value="OR">OR</option><option value="PA">PA</option><option value="RI">RI</option><option value="SC">SC</option><option value="SD">SD</option><option value="TN">TN</option><option value="TX">TX</option><option value="UT">UT</option><option value="VT">VT</option><option value="VA">VA</option><option value="WA">WA</option><option value="WV">WV</option><option value="WI">WI</option><option value="WY">WY</option></select></div>
@@ -67,13 +67,12 @@
 				/**
 				 * Create new instance of the validator object for each form
 				 */
-				var ov = new OpenVL();
-				var ov2 = new OpenVL();
+				var ov2 = OpenVL('#form2');
 				/**
 				 * Setup validation.
 				 * Just pass a class, id, or element name along with any of the other optional params to the .validate() function.
 				 */
-				ov.validate({_form:"#form"});
+				OpenVL('#form').validate({_form:"#form"});
 				ov2.validate({_form:"#form2"});
 			</script>
 		</div>

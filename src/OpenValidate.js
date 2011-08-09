@@ -160,210 +160,222 @@ var RulesById = function (id) { for (var r = 0; r<Rules.length;++r) { if (Rules[
 var RulesByClass = function (cls) { for (var r = 0; r<Rules.length;++r) { if (Rules[r]._class === cls) { return Rules[r]; } } };
 
 /* OpenVL class */
-var OpenVL = function () { 
-	var ovl = this;
-	this._options = {_form:document,_message:"",_allErrors:[],_focusBlur:true,uselabels:true,_msgType:"both", _autoHideMsg:true, focusOnSubmitError: true};
-	this.currentEvent = null;
-	this.validate = function (options) {
-		ovl._options = extend(ovl._options, options);
-		var forms = query(ovl._options._form), fL = forms.length;
-		for (var fi=0;fi<fL;fi++) {
-			if (ovl._options._focusBlur === true){
-				var formInputs = query('input,select,textarea',forms[fi]), fil = formInputs.length, type;
-				for(var i=0;i<fil;++i) {
-					type = formInputs[i].getAttribute("type");
-					if(type !== "submit") {
-						formInputs[i].onblur = (function(f) { return function(){ ovl._blur(this,f); }; })(forms[fi]);
-						formInputs[i].onfocus = (function(f) { return function(){ ovl._focus(this,f); }; })(forms[fi]);
-						if (isBrowser("Safari") && (type === "radio" || type === "checkbox")) {
-							formInputs[i].onclick = (function(f) { return function(){ ovl._blur(this,f); }; })(forms[fi]);
+var OpenVL = function (form) { 
+	if ( this instanceof OpenVL ) {
+		var ovl = this;
+		this.$form = query(form);
+		this.opts = {msg:"",focusBlur:true,uselabels:true,msgType:"both",autoHideMsg:true,focusOnSubmitError: true};
+		this.AllErrors = [];
+		this.currentEvent = null;
+		this.validate = function (options) {
+			ovl.opts = extend(ovl.opts, options);
+			var forms = query(ovl.$form), fL = forms.length;
+			for (var fi=0;fi<fL;fi++) {
+				if (ovl.opts.focusBlur === true){
+					var formInputs = query('input,select,textarea',forms[fi]), fil = formInputs.length, type;
+					for(var i=0;i<fil;++i) {
+						type = formInputs[i].getAttribute("type");
+						if(type !== "submit") {
+							formInputs[i].onblur = (function(f) { return function(){ ovl.blur(this,f); }; })(forms[fi]);
+							formInputs[i].onfocus = (function(f) { return function(){ ovl.focus(this,f); }; })(forms[fi]);
+							if (isBrowser("Safari") && (type === "radio" || type === "checkbox")) {
+								formInputs[i].onclick = (function(f) { return function(){ ovl.blur(this,f); }; })(forms[fi]);
+							}
 						}
 					}
 				}
-			}
-			if (ovl._options._msgType === "both" || ovl._options._msgType === "list") {
-				if (query('.MessageArea',forms[fi]).length === 0) {
-					var msgdiv = document.createElement('div');
-					msgdiv.className = 'MessageArea';
-					prepend(msgdiv, forms[fi]);
+				if (ovl.opts.msgType === "both" || ovl.opts.msgType === "list") {
+					if (query('.MessageArea',forms[fi]).length === 0) {
+						var msgdiv = document.createElement('div');
+						msgdiv.className = 'MessageArea';
+						prepend(msgdiv, forms[fi]);
+					}
+				}
+				if (forms[fi].nodeName === "FORM") {
+					forms[fi].setAttribute('novalidate',''); // disables browser based validation.
+					var oldHandler = forms[fi].onsubmit;
+					forms[fi].onsubmit = function(e) {
+						ovl.currentEvent = 'submit';
+						if(oldHandler){
+							var oldHandlerReturnValue = oldHandler();
+							var ovlReturnValue = ovl.exec(this);
+							if (oldHandlerReturnValue == true && ovlReturnValue == true) { return true; } 
+							else { return false; }
+						} 
+						else { return ovl.exec(this); }
+					}
 				}
 			}
-			if (forms[fi].nodeName === "FORM") {
-				forms[fi].setAttribute('novalidate',''); // disables browser based validation.
-				var oldHandler = forms[fi].onsubmit;
-				forms[fi].onsubmit = function(e) {
-					ovl.currentEvent = 'submit';
-					if(oldHandler){
-						var oldHandlerReturnValue = oldHandler();
-						var ovlReturnValue = ovl.exec(this);
-						if (oldHandlerReturnValue == true && ovlReturnValue == true) { return true; } 
-						else { return false; }
-					} 
-					else { return ovl.exec(this); }
-				}
-			}
-		}
 		
-	};
-	this._do = function (scope,form) {
-		var test, parent = parentNode(scope), label = query("label",parent), labelText = '', classes = scope.getAttribute('data-ovl-rules').split(' ');
-		if (ovl._options.uselabels !== false) {
-			for (var l = 0; l < label.length; ++l) {
-				if ((label[l].getAttribute('for') === scope.id || label[l].getAttribute('htmlFor') === scope.id)) {
-					labelText = ReturnLabel(label[l]);
+		};
+		this.doit = function (scope) {
+			var form = ovl.$form;
+			var test, parent = parentNode(scope), label = query("label",parent), labelText = '', classes = scope.getAttribute('data-ovl-rules').split(' ');
+			if (ovl.opts.uselabels !== false) {
+				for (var l = 0; l < label.length; ++l) {
+					if ((label[l].getAttribute('for') === scope.id || label[l].getAttribute('htmlFor') === scope.id)) {
+						labelText = ReturnLabel(label[l]);
+					}
 				}
 			}
-		}
-		for (var r=0;r<classes.length;++r) {
-			var Rule = RulesByClass(classes[r]) || null;
-			if (Rule !== null) {
-				test = Rule.func(scope) && test;
-				if (test === false) {
-					var message = Rule.msg;
-					if (scope.getAttribute("data-" + Rule._class+"-message")) { ovl._options.message = scope.getAttribute("data-" + Rule._class+"-message"); }
-					else if (Rule.useLabels === true) { ovl._options.message = labelText +" "+ message;  } 
-					else { ovl._options.message = message; }
-					ovl._options._allErrors.push(ovl._options.message);
-					break;
+			for (var r=0;r<classes.length;++r) {
+				var Rule = RulesByClass(classes[r]) || null;
+				if (Rule !== null) {
+					test = Rule.func(scope) && test;
+					if (test === false) {
+						var message = Rule.msg;
+						if (scope.getAttribute("data-" +Rule._class+"-message")) { ovl.opts.message = scope.getAttribute("data-" + Rule._class+"-message"); }
+						else if (Rule.useLabels === true) { ovl.opts.message = labelText +" "+ message;  } 
+						else { ovl.opts.message = message; }
+						ovl.AllErrors.push(ovl.opts.message);
+						break;
+					}
 				}
 			}
-		}
-		return test;
-	};
-	this._blur = function (ele,form) {
-		ovl.currentEvent = (ovl.currentEvent === 'blur') ? ovl.currentEvent : 'blur';
-		var parent = parentNode(ele), allErrorDivs = query('.err_box',form), aitype = ele.getAttribute('type');
-		if (ovl._do(ele,form) === false && ( !!ele.getAttribute('required') || (!ele.getAttribute('required') && (aitype !== 'radio' && aitype !== 'checkbox') && ele.value !== "") ) ) {
-			ovl.errors._build(ele,form);
-			allErrorDivs = query('.err_box',form);
-			if (allErrorDivs.length !== 0){ for (var errs=0; errs<allErrorDivs.length;++errs){ ovl.errors._hide(errs,form); } ovl.errors._show(0,form); } 
-			else if (allErrorDivs.length === 0) { ovl.errors._show(0,form); }
-		} else {
-			ovl.errors._clear(ele,form);
-			allErrorDivs = query('.err_box',form);
-			if (allErrorDivs.length !== 0){ ovl.errors._show(0,form); }
-		}
-	};
-	this._focus = function (ele,form) {
-		var parent = parentNode(ele),
-			allErrorDivs = query('.form_err_wrapper',form),
-			allerrs = query('.err_box',form),
-			eindex = findIndex(parent, allerrs);
-		if (hasClass(parent,"err_box")){ 
-			allerrs = query('.err_box',form);
-			for (var errs=0; errs<allErrorDivs.length;++errs) { 
-				ovl.errors._hide(errs,form); 
-			} 
-			ovl.errors._show(eindex,form);
-		}
-	};
-	this.exec = function (scope) {
-		ovl._options._allErrors = [];
-		if (typeof scope === "string") {scope = document.getElementById(scope);}
-		var allI = query('input,select,textarea',scope), noerrors = true, ali = allI.length;
-		for (var ai=0;ai<ali;++ai){
-			var aielm = allI[ai], aitype = aielm.getAttribute("type");
-			if ( aitype !== "submit" && aitype !== "hidden"){
-				if ( !!aielm.getAttribute('required') || (!aielm.getAttribute('required') && (aitype !== 'radio' && aitype !== 'checkbox') && aielm.value !== "") ) {
-					if (ovl._do(aielm,scope) === false){ ovl.errors._build(aielm,scope); noerrors=false;}
-					else { ovl.errors._clear(aielm,scope); }
+			return test;
+		};
+		this.blur = function (ele) {
+			var form = ovl.$form;
+			ovl.currentEvent = (ovl.currentEvent === 'blur') ? ovl.currentEvent : 'blur';
+			var parent = parentNode(ele), allErrorDivs = query('.err_box',form), aitype = ele.getAttribute('type');
+			if (ovl.doit(ele) === false && ( !!ele.getAttribute('required') || (!ele.getAttribute('required') && (aitype !== 'radio' && aitype !== 'checkbox') && ele.value !== "") ) ) {
+				ovl.errors.build(ele,form);
+				allErrorDivs = query('.err_box',form);
+				if (allErrorDivs.length !== 0){ for (var errs=0; errs<allErrorDivs.length;++errs){ ovl.errors.hide(errs,form); } ovl.errors.show(0,form); } 
+				else if (allErrorDivs.length === 0) { ovl.errors.show(0,form); }
+			} else {
+				ovl.errors.clear(ele,form);
+				allErrorDivs = query('.err_box',form);
+				if (allErrorDivs.length !== 0){ ovl.errors.show(0,form); }
+			}
+		};
+		this.focus = function (ele) {
+			var form = ovl.$form, parent = parentNode(ele),
+				allErrorDivs = query('.form_err_wrapper',form),
+				allerrs = query('.err_box',form),
+				eindex = findIndex(parent, allerrs);
+			if (hasClass(parent,"err_box")){ 
+				allerrs = query('.err_box',form);
+				for (var errs=0; errs<allErrorDivs.length;++errs) { 
+					ovl.errors.hide(errs,form); 
+				} 
+				ovl.errors.show(eindex,form);
+			}
+		};
+		this.exec = function () {
+			var scope = ovl.$form;
+			ovl.AllErrors = [];
+			if (typeof scope === "string") {scope = document.getElementById(scope);}
+			var allI = query('input,select,textarea',scope), noerrors = true, ali = allI.length;
+			for (var ai=0;ai<ali;++ai){
+				var aielm = allI[ai], aitype = aielm.getAttribute("type");
+				if ( aitype !== "submit" && aitype !== "hidden"){
+					if ( !!aielm.getAttribute('required') || (!aielm.getAttribute('required') && (aitype !== 'radio' && aitype !== 'checkbox') && aielm.value !== "") ) {
+						if (ovl.doit(aielm) === false){ ovl.errors.build(aielm,scope); noerrors=false;}
+						else { ovl.errors.clear(aielm,scope); }
+					}
 				}
 			}
-		}
-		var allerrs = query('.err_box',scope);
-		for (var errs=0; errs<allerrs.length;++errs) { ovl.errors._hide(errs,scope); }
-		if (!noerrors) { ovl.errors._show(0,scope); }
-		return noerrors;
-	};
-	this.test = function (scope) {
-		if (typeof scope === "string") {scope = document.getElementById(scope);}
-		var allI = query('input,select,textarea',scope), noerrors = true, ali = allI.length;
-		for (var ai=0;ai<ali;++ai){
-			var aielm = allI[ai];
-			if (aielm.getAttribute("type") !== "submit" && aielm.getAttribute("type") !== "hidden"){
-				if ( !!aielm.getAttribute('required') || (!aielm.getAttribute('required') && (aitype !== 'radio' && aitype !== 'checkbox') && aielm.value !== "") ) {
-					if (ovl._do(aielm) === false){ noerrors=false; }
+			var allerrs = query('.err_box',scope);
+			for (var errs=0; errs<allerrs.length;++errs) { ovl.errors.hide(errs,scope); }
+			if (!noerrors) { ovl.errors.show(0,scope); }
+			return noerrors;
+		};
+		this.test = function () {
+			var scope = ovl.$form;
+			if (typeof scope === "string") {scope = document.getElementById(scope);}
+			var allI = query('input,select,textarea',scope), noerrors = true, ali = allI.length;
+			for (var ai=0;ai<ali;++ai){
+				var aielm = allI[ai];
+				if (aielm.getAttribute("type") !== "submit" && aielm.getAttribute("type") !== "hidden"){
+					if ( !!aielm.getAttribute('required') || (!aielm.getAttribute('required') && (aitype !== 'radio' && aitype !== 'checkbox') && aielm.value !== "") ) {
+						if (ovl.doit(aielm) === false){ noerrors=false; }
+					}
 				}
 			}
-		}
-		return noerrors;
-	};
-	this.clearvalidation = function (scope) {
-		var forms = query(scope), fL = forms.length;
-		for (var fi=0;fi<fL;fi++) {
-			var thisForm = forms[fi], formInputs = query('input,select,textarea',thisForm),input;
-			for(var i=0;i<formInputs.length;++i) {
-				if (formInputs[i].getAttribute("type") !== "submit" && formInputs[i].getAttribute("type") !== "hidden"){
-					if (ovl._options._focusBlur === true){ input = formInputs[i]; input.onblur = ""; input.onfocus = ""; }
-					if (formInputs[i].getAttribute("type") != "submit") { ovl.errors._clear(formInputs[i],scope); }
+			return noerrors;
+		};
+		this.clearvalidation = function () {
+			var forms = ovl.$form, fL = forms.length;
+			for (var fi=0;fi<fL;fi++) {
+				var thisForm = forms[fi], formInputs = query('input,select,textarea',thisForm),input;
+				for(var i=0;i<formInputs.length;++i) {
+					if (formInputs[i].getAttribute("type") !== "submit" && formInputs[i].getAttribute("type") !== "hidden"){
+						if (ovl.opts.focusBlur === true){ input = formInputs[i]; input.onblur = ""; input.onfocus = ""; }
+						if (formInputs[i].getAttribute("type") != "submit") { ovl.errors.clear(formInputs[i],forms); }
+					}
 				}
+				if (query('.MessageArea',thisForm).length !== 0) {thisForm.removeChild(query('.MessageArea',thisForm)[0]);}
+				if (forms[fi].nodeName === "FORM") { forms[fi].onsubmit = ""; }
 			}
-			if (query('.MessageArea',thisForm).length !== 0) {thisForm.removeChild(query('.MessageArea',thisForm)[0]);}
-			if (forms[fi].nodeName === "FORM") { forms[fi].onsubmit = ""; }
-		}
-	};
-	this.errors = {
-		_build:function (scope,form) {
-			ovl._options._allErrors.push(ovl._options.message);
+		};
+		this.errors = {
+			inlineTmpl: function (text) {
+				var tmp = document.createElement('div'), nd = null;
+				tmp.innerHTML = '<div class="form_err_wrapper"><div class="form_err_msg">'+text+'</div></div>';
+				nd = tmp.firstChild;
+				//document.removeChild(tmp);
+				return nd;
+			},
+			build:function (scope) {
+				//ovl.AllErrors.push(ovl.opts.message);
+				console.log(ovl.AllErrors);
+				var form = ovl.$form, parent = parentNode(scope), errorDiv = ovl.errors.inlineTmpl(ovl.opts.message);
+				if (!hasClass(parent,'err_box')){ addClass(parent, "err_box");}
+				if (ovl.opts.msgType === "both" || ovl.opts.msgType === "inline"){
+					if (query('.form_err_wrapper',parent).length === 0 && errorDiv !== null){
+						parent.appendChild(errorDiv);
+					} else {
+						errorDiv = query('.form_err_msg',parent)[0];
+						errorDiv.innerHTML = ovl.opts.message;
+					}
+					
+				}
+				if (ovl.opts.msgType === "both" || ovl.opts.msgType === "list"){
+					var theErrors = unique(ovl.AllErrors),
+						ErrorsHTML = '<ul>';
+					for (var ei=0;ei<theErrors.length;++ei){ ErrorsHTML += '<li>'+theErrors[ei]+'</li>'; }
+						ErrorsHTML += '</ul>';
+					if (query('.MessageArea',form)) {query('.MessageArea',form)[0].innerHTML=ErrorsHTML;}
+				}
+			},
+			show:function (index,form) {
+				var errboxes = query('.err_box',form);
+				if (ovl.opts.msgType === "both" || ovl.opts.msgType === "inline"){
+					query('.form_err_wrapper',errboxes[index])[0].style.display="block";
+				}
+				if (ovl.opts.focusOnSubmitError === true && ovl.currentEvent === 'submit') {
+					query('input, textarea, select',errboxes[0])[0].focus();
+				}
+			},
+			hide:function (index,form) {
+				if ((ovl.opts.msgType === "both"||ovl.opts.msgType === "inline") && ovl.opts.autoHideMsg === true) { 
+					var errboxes = query('.err_box',form); 
+					query('.form_err_wrapper',errboxes[index])[0].style.display="none"; 
+				} 
+			},
+			clear:function (scope,form) {
+				var parent = parentNode(scope),
+					ei = query('.err_box',form),
+					ma = query('.MessageArea',form),
+					mali = query('li',ma),
+					mai = mali.length,
+					sei = query('.form_err_msg',parent),
+					seit = '';
+				if (sei.length > 0) { seit = sei[0].innerText || sei[0].textContent; }
+				removeClass(parent, "err_box");
+				if (ovl.opts.msgType === "both"|| ovl.opts.msgType === "inline") {
+					if (query('.form_err_wrapper',parent).length !== 0) {
+						parent.removeChild(query('.form_err_wrapper',parent)[0]);
+					}
+				}
 			
-			var parent = parentNode(scope), errorDiv, newel, newelinner;
-			if (!hasClass(parent,'err_box')){ addClass(parent, "err_box");}
-			if (ovl._options._msgType === "both" || ovl._options._msgType === "inline"){
-				if (query('.form_err_wrapper',parent).length === 0){
-					newel = document.createElement("div");
-					newel.className = "form_err_wrapper";
-					newelinner = document.createElement("div");
-					newelinner.className="form_err_msg";
-					newel.appendChild(newelinner);
-					parent.appendChild(newel);
-				}
-				errorDiv = query('.form_err_msg',parent)[0];
-				errorDiv.innerHTML = ovl._options.message;
+				if ((ei.length) === 0) {
+					if((ma.length) !== 0) {ma.innerHTML="";}
+					ovl.AllErrors=null;
+					ovl.AllErrors=[];
+				} 
 			}
-			if (ovl._options._msgType === "both" || ovl._options._msgType === "list"){
-				var theErrors = unique(ovl._options._allErrors),
-					ErrorsHTML = '<ul>';
-				for (var ei=0;ei<theErrors.length;++ei){ ErrorsHTML += '<li>'+theErrors[ei]+'</li>'; }
-					ErrorsHTML += '</ul>';
-				if (query('.MessageArea',form)) {query('.MessageArea',form)[0].innerHTML=ErrorsHTML;}
-			}
-		},
-		_show:function (index,form) {
-			var errboxes = query('.err_box',form);
-			if (ovl._options._msgType === "both" || ovl._options._msgType === "inline"){
-				query('.form_err_wrapper',errboxes[index])[0].style.display="block";
-			}
-			if (ovl._options.focusOnSubmitError === true && ovl.currentEvent === 'submit') {
-				query('input, textarea, select',errboxes[0])[0].focus();
-			}
-		},
-		_hide:function (index,form) {
-			if ((ovl._options._msgType === "both"||ovl._options._msgType === "inline") && ovl._options._autoHideMsg === true) { 
-				var errboxes = query('.err_box',form); 
-				query('.form_err_wrapper',errboxes[index])[0].style.display="none"; 
-			} 
-		},
-		_clear:function (scope,form) {
-			var parent = parentNode(scope),
-				ei = query('.err_box',form),
-				ma = query('.MessageArea',form),
-				mali = query('li',ma),
-				mai = mali.length,
-				sei = query('.form_err_msg',parent),
-				seit = '';
-			if (sei.length > 0) { seit = sei[0].innerText || sei[0].textContent; }
-			removeClass(parent, "err_box");
-			if (ovl._options._msgType === "both"|| ovl._options._msgType === "inline") {
-				if (query('.form_err_wrapper',parent).length !== 0) {
-					parent.removeChild(query('.form_err_wrapper',parent)[0]);
-				}
-			}
-			
-			if ((ei.length) === 0) {
-				if((ma.length) !== 0) {ma.innerHTML="";}
-				ovl._options._allErrors=null;
-				ovl._options._allErrors=[];
-			} 
-		}
-	};
+		};
+	} else { return new OpenVL(form); }
 };
