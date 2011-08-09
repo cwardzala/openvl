@@ -154,6 +154,7 @@ var RulesByClass = function (cls) { for (var r = 0; r<Rules.length;++r) { if (Ru
 var OpenVL = function () { 
 	var ovl = this;
 	this._options = {_form:document,_message:"",_allErrors:[],_focusBlur:true,uselabels:true,_msgType:"both", _autoHideMsg:true, focusOnSubmitError: true};
+	this.currentEvent = null;
 	this.validate = function (options) {
 		ovl._options = extend(ovl._options, options);
 		var forms = query(ovl._options._form), fL = forms.length;
@@ -181,6 +182,7 @@ var OpenVL = function () {
 				forms[fi].setAttribute('novalidate',''); // disables browser based validation.
 				var oldHandler = forms[fi].onsubmit;
 				forms[fi].onsubmit = function(e) {
+					ovl.currentEvent = 'submit';
 					if(oldHandler){
 						var oldHandlerReturnValue = oldHandler();
 						var ovlReturnValue = ovl.exec(this);
@@ -219,6 +221,7 @@ var OpenVL = function () {
 		return test;
 	};
 	this._blur = function (ele,form) {
+		ovl.currentEvent = (ovl.currentEvent === 'blur') ? ovl.currentEvent : 'blur';
 		var parent = ele.parentNode, allErrorDivs = query('.err_box',form);
 		if (hasClass(parent.parentNode,"group")){parent = parent.parentNode;}
 		if (ovl._do(ele,form) === false && (hasClass(ele,RulesById('isRequired')._class) || ele.value !== "")){
@@ -253,7 +256,7 @@ var OpenVL = function () {
 		for (var ai=0;ai<ali;++ai){
 			var aielm = allI[ai];
 			if (aielm.getAttribute("type") !== "submit" && aielm.getAttribute("type") !== "hidden"){
-				if (hasClass(aielm,RulesById('isRequired')._class) || aielm.value !== ""){
+				if (hasClass(aielm,RulesById('isRequired')._class) || ((aielm.type !== 'radio' && aielm.type !== 'checkbox') && aielm.value !== "") ){
 					if (ovl._do(aielm,scope) === false){ ovl.errors._build(aielm,scope); noerrors=false;}
 					else { ovl.errors._clear(aielm,scope); }
 				}
@@ -270,7 +273,7 @@ var OpenVL = function () {
 		for (var ai=0;ai<ali;++ai){
 			var aielm = allI[ai];
 			if (aielm.type !== "submit" && aielm.type !== "hidden"){
-				if (hasClass(aielm,RulesById('isRequired')._class) || aielm.value !== ""){
+				if ( hasClass(aielm,RulesById('isRequired')._class) || ((aielm.type !== 'radio' && aielm.type !== 'checkbox') && aielm.value !== "") ){
 					if (ovl._do(aielm) === false){ noerrors=false; }
 				}
 			}
@@ -323,7 +326,7 @@ var OpenVL = function () {
 			if (ovl._options._msgType === "both" || ovl._options._msgType === "inline"){
 				query('.form_err_wrapper',errboxes[index])[0].style.display="block";
 			}
-			if (ovl._options.focusOnSubmitError === true) {
+			if (ovl._options.focusOnSubmitError === true && ovl.currentEvent === 'submit') {
 				query('input, textarea, select',errboxes[0])[0].focus();
 			}
 		},
