@@ -10,7 +10,7 @@ Currently the library is written in JavaScript for use with web forms, however i
 
 Features
 --------
-* Supports HTML5 attributes like min, max, and data
+* Supports HTML5 attributes like required, min, max, and data
 * Has both list and inline type messaging
 * Rules can be customized to fit any need
 * Supports jQuery, Sizzle, and Dojo frameworks *none of these are required*
@@ -27,7 +27,7 @@ Start with a form that has a unique ID with each form field and label combinatio
 <form id="formID" method="get/post" action="">
 	<div class="form">
 		<div class="spot">
-			<label for="input">Input</label><input id="input" class="form_req">
+			<label for="input">Input</label><input id="input" data-ovl-rules="form_req" required="required">
 		</div>
 	</div>
 </form>
@@ -132,7 +132,7 @@ Tests if the scope's value is a number.
 Tests for a validly formatted email.
 
 ### Is The Same
-Tests two fields against each other using the form_same and form_same_verify classes.
+Tests two fields against each other using the form\_same, form\_same\_verify rule class and data-form-same-id attribute.
 
 ### Is Checked
 Tests if a radio button or checkbox is "checked".
