@@ -272,9 +272,9 @@ var OpenVL = function () {
 		if (typeof scope === "string") {scope = document.getElementById(scope);}
 		var allI = query('input,select,textarea',scope), noerrors = true, ali = allI.length;
 		for (var ai=0;ai<ali;++ai){
-			var aielm = allI[ai];
-			if (aielm.getAttribute("type") !== "submit" && aielm.getAttribute("type") !== "hidden"){
-				if ( hasClass(aielm,RulesById('isRequired')._class) || ((aielm.getAttribute("type") !== 'radio' && aielm.getAttribute("type") !== 'checkbox') && aielm.value !== "") ){
+			var aielm = allI[ai], aitype = aielm.getAttribute("type");
+			if (aitype !== "submit" && aielm.getAttribute("type") !== "hidden"){
+				if ( hasClass(aielm,RulesById('isRequired')._class) || ((aitype !== 'radio' && aitype !== 'checkbox') && aielm.value !== "") ){
 					if (ovl._do(aielm) === false){ noerrors=false; }
 				}
 			}
