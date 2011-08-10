@@ -70,7 +70,12 @@
 				 * Just pass a class, id, or element name along with any of the other optional params to the .validate() function.
 				 */
 				window.osettings = {msgType:'inline'};
-				OpenVL('#form').validate(window.osettings);
+				var ov = OpenVL('#form').validate(window.osettings);
+				(function(ovl){
+					ovl.prototype.myPlugin = function() {
+						return this.exec();
+					};
+				})(OpenVL);
 				OpenVL('#form2').validate();
 			</script>
 		</div>
