@@ -3,7 +3,7 @@
 	Rule Template {id:"", func: function (scope) {}, _class:"form-url", msg:"", useLabels:false}
 */
 var Rules = [
-	{id:"isRequired", func: function (scope) { return (scope.value === null) || (scope.value.length !== 0);}, _class:"form-req", msg:"is a required field.", useLabels:true},
+	//{id:"isRequired", htmlAttr:'required', func: function (scope) { return (scope.value === null) || (scope.value.length !== 0);}, _class:"form-req", msg:"is a required field.", useLabels:true},
 	{id:"isNumeric", func: function (scope) { var re = new RegExp(/^([0-9]\d*(\.|\,)\d*|0?(\.|\,)\d*[1-9]\d*|[0-9]\d*)$/); return re.test(scope.value);}, _class:"form-number", msg:"can only be a number.", useLabels:true},
 	{id:"isEmail", func: function (scope) { var re = /^[^\s()<>@,;:\/]+@\w[\w\.\-]+\.[a-z]{2,}$/i;return re.test(scope.value);}, _class:"form-email", msg:"is an invalid email address.", useLabels:true},
 	{id:"istheSame", func:function (scope) { 

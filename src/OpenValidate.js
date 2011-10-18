@@ -80,9 +80,9 @@
  * a placholder for the object key name. (basically, crude compression)
  */
 var selectorEngines = { "Sizzle" : "*", "jQuery" : "*", "dojo" : "*.query" },
-OVLengine = null, engineName = null, win = this;
+OVLengine = null, engineName = null, win = this, engine;
 // Determine the "best fit" selector engine
-for (var engine in selectorEngines) {
+for (engine in selectorEngines) {
 	var members, member, context = win;
 	if (win[engine]) {
 		members = selectorEngines[engine].replace("*", engine).split(".");
@@ -94,7 +94,9 @@ for (var engine in selectorEngines) {
 	}
 }
 
-// makeClass - By John Resig (MIT Licensed)
+/** 
+ * makeClass - By John Resig (MIT Licensed) 
+ */
 function makeClass () {
   return function(args){
     if ( this instanceof arguments.callee ) {
@@ -123,28 +125,66 @@ var query = function (string,scope) {
 		// Utilize the unique function rather than recreate it here.
 		return unique(retnode);
 	}
-};
-
-var unique						= function (a)				{ var r = [],i,x,y,n; o:for(i = 0, n = a.length; i < n; i++){ for(x = 0, y = r.length; x < y; x++){ if(r[x]===a[i]) {continue o;} } r[r.length] = a[i]; } return r; };
-var findIndex					= function (ele,arr)		{ var ctr = "",i; for (i=0; i < arr.length; i++) { if (arr[i] === ele) { return i; } } return ctr; };
-var extend						= function (obj, extObj)	{ var i,a; if (arguments.length > 2) { for (a = 1; a < arguments.length; a++) { extend(obj, arguments[a]); } } else { for (i in extObj) { obj[i] = extObj[i]; } } return obj; };
-var hasClass					= function (ele,cls)		{ return ele.className.match(new RegExp('(\\s|^)'+cls+'(\\s|$)')); };
-var addClass					= function (ele,cls)		{ if (!hasClass(ele,cls)) { ele.className += " "+cls;} };
-var removeClass					= function (ele,cls)		{ if (hasClass(ele,cls)) { var reg = new RegExp('(\\s|^)'+cls+'(\\s|$)'); ele.className=ele.className.replace(reg,' '); } };
-var ReturnLabel					= function (ele)			{ if (ele !== undefined && ele.nodeType === 1 && ele.nodeName === "LABEL") { var text = ele.innerText || ele.textContent; return text.replace(/\([^)]* \)/g,'').replace(/[^a-zA-Z 0-9]+/g,'').replace(/^\s*|\s*$/g,'');} };
-var prepend						= function (ele,target)		{ if ( target.nodeType === 1 ) { target.insertBefore( ele, target.firstChild );} };
-var isBrowser					= function (string)			{ return (navigator.userAgent.indexOf(string)>=0);};
-var ovlPreviousSibling			= function (o)				{ do o = o.previousSibling; while (o && o.nodeType != 1); return o; }
-var parentNode					= function (ele)			{ var parent = ele.parentNode; if ( hasClass(parent.parentNode,"group") ) {parent = parent.parentNode;} return parent; }
-var RulesById					= function (id)				{ for (var r = 0; r<Rules.length;++r) { if (Rules[r].id === id) { return Rules[r]; } } };
-var RulesByClass				= function (cls)			{ for (var r = 0; r<Rules.length;++r) { if (Rules[r]._class === cls) { return Rules[r]; } } };
+},
+	
+	unique						= function (a)				{ var r = [],i,x,y,n; o:for(i = 0, n = a.length; i < n; i++){ for(x = 0, y = r.length; x < y; x++){ if(r[x]===a[i]) {continue o;} } r[r.length] = a[i]; } return r; },
+	findIndex					= function (ele,arr)		{ var ctr = "",i; for (i=0; i < arr.length; i++) { if (arr[i] === ele) { return i; } } return ctr; },
+	extend						= function (obj, extObj)	{ var i,a; if (arguments.length > 2) { for (a = 1; a < arguments.length; a++) { extend(obj, arguments[a]); } } else { for (i in extObj) { obj[i] = extObj[i]; } } return obj; },
+	hasClass					= function (ele,cls)		{ return ele.className.match(new RegExp('(\\s|^)'+cls+'(\\s|$)')); },
+	addClass					= function (ele,cls)		{ if (!hasClass(ele,cls)) { ele.className += " "+cls;} },
+	removeClass					= function (ele,cls)		{ if (hasClass(ele,cls)) { var reg = new RegExp('(\\s|^)'+cls+'(\\s|$)'); ele.className=ele.className.replace(reg,' '); } },
+	ReturnLabel					= function (ele)			{ if (ele !== undefined && ele.nodeType === 1 && ele.nodeName === "LABEL") { var text = ele.innerText || ele.textContent; return text.replace(/\([^)]* \)/g,'').replace(/[^a-zA-Z 0-9]+/g,'').replace(/^\s*|\s*$/g,'');} },
+	prepend						= function (ele,target)		{ if ( target.nodeType === 1 ) { target.insertBefore( ele, target.firstChild );} },
+	isBrowser					= function (string)			{ return (navigator.userAgent.indexOf(string)>=0);},
+	ovlPreviousSibling			= function (o)				{ do o = o.previousSibling; while (o && o.nodeType != 1); return o; },
+	getParentNode = function (ele,spotClass)	{
+		spotClass = spotClass || 'spot';
+		if ( hasClass(ele.parentNode,spotClass) ) { return ele.parentNode; } 
+		else { return getParentNode(ele.parentNode,spotClass); }
+	},
+	RulesById					= function (id)				{ for (var r = 0; r<Rules.length;++r) { if (Rules[r].id === id) { return Rules[r]; } } },
+	RulesByClass = function (cls) { 
+		for (var r = 0; r<Rules.length;++r) { 
+			if (Rules[r] !== undefined) { 
+				if (Rules[r]._class === cls) { 
+					return Rules[r]; 
+				} 
+			} else {
+				return {id:"", func: function (scope) {}, _class:"form-url", msg:"", useLabels:false};
+			}
+		} 
+	},
+	RulesByAttr = function (attr) {
+		for (var r = 0; r<Rules.length;++r) { 
+			if (Rules[r] !== undefined) { 
+				if (Rules[r].htmlAttr === attr) { return Rules[r]; } 
+			}	else {
+				return {id:"", func: function (scope) {}, _class:"", msg:"", useLabels:false};
+			}
+		} 
+	},
+	HasHTMLRequired = function (ele) {
+		if (!ele.getAttribute('required')) {
+			return false;
+		} else {
+			return true;
+		}
+	};
 
 /* OpenVL class */
 var OpenVL = makeClass();
 OpenVL.prototype.init = function (form) { 
 	var ovl = this;
 	this.$form = query(form);
-	this.opts = {msg:"",focusBlur:true,uselabels:true,msgType:"both",autoHideMsg:true,focusOnSubmitError: true};
+	this.opts = {
+		msg:"",
+		focusBlur:true,
+		uselabels:true,
+		msgType:"both",
+		autoHideMsg:true,
+		focusOnSubmitError:true,
+		spotClass: 'spot'
+	};
 	this.AllErrors = [];
 	this.currentEvent = null;
 	this.validate = function (options) {
@@ -189,7 +229,17 @@ OpenVL.prototype.init = function (form) {
 	};
 	this.doit = function (scope) {
 		var form = ovl.$form[0];
-		var test, parent = parentNode(scope), label = query("label",parent), labelText = '', classes = scope.getAttribute('data-ovl-rules').split(' ');
+		var test, parent = getParentNode(scope,ovl.opts.spotClass), label = query("label",parent), labelText = '',scopeRules = scope.getAttribute('data-ovl-rules') || "", classes;
+		
+		console.log(HasHTMLRequired(scope));
+		
+		if (HasHTMLRequired(scope) === true) {
+			var reqrule = RulesByAttr('required');
+			scopeRules = reqrule._class+' '+scopeRules;
+		}
+		
+		classes = scopeRules.split(' ');
+		console.log(classes);
 		if (ovl.opts.uselabels !== false) {
 			for (var l = 0; l < label.length; ++l) {
 				if ((label[l].getAttribute('for') === scope.id || label[l].getAttribute('htmlFor') === scope.id)) {
@@ -198,16 +248,18 @@ OpenVL.prototype.init = function (form) {
 			}
 		}
 		for (var r=0;r<classes.length;++r) {
-			var Rule = RulesByClass(classes[r]) || null;
-			if (Rule !== null) {
-				test = Rule.func(scope) && test;
-				if (test === false) {
-					var message = Rule.msg;
-					if (scope.getAttribute("data-" +Rule._class+"-message")) { ovl.opts.message = scope.getAttribute("data-" + Rule._class+"-message"); }
-					else if (Rule.useLabels === true) { ovl.opts.message = labelText +" "+ message;  } 
-					else { ovl.opts.message = message; }
-					ovl.AllErrors.push(ovl.opts.message);
-					break;
+			if (classes[r] !== "") {
+				var Rule = RulesByClass(classes[r]) || null;
+				if (Rule !== null) {
+					test = Rule.func(scope) && test;
+					if (test === false) {
+						var message = Rule.msg;
+						if (scope.getAttribute("data-" +Rule._class+"-message")) { ovl.opts.message = scope.getAttribute("data-" + Rule._class+"-message"); }
+						else if (Rule.useLabels === true) { ovl.opts.message = labelText +" "+ message;  } 
+						else { ovl.opts.message = message; }
+						ovl.AllErrors.push(ovl.opts.message);
+						break;
+					}
 				}
 			}
 		}
@@ -216,7 +268,7 @@ OpenVL.prototype.init = function (form) {
 	this.blur = function (ele) {
 		var form = ovl.$form[0];
 		ovl.currentEvent = (ovl.currentEvent === 'blur') ? ovl.currentEvent : 'blur';
-		var parent = parentNode(ele), allErrorDivs = query('.err_box',form), aitype = ele.getAttribute('type');
+		var parent = getParentNode(ele,ovl.opts.spotClass), allErrorDivs = query('.err_box',form), aitype = ele.getAttribute('type');
 		if (ovl.doit(ele) === false && ( !!ele.getAttribute('required') || (!ele.getAttribute('required') && (aitype !== 'radio' && aitype !== 'checkbox') && ele.value !== "") ) ) {
 			ovl.errors.build(ele,form);
 			allErrorDivs = query('.err_box',form);
@@ -229,7 +281,7 @@ OpenVL.prototype.init = function (form) {
 		}
 	};
 	this.focus = function (ele) {
-		var form = ovl.$form[0], parent = parentNode(ele),
+		var form = ovl.$form[0], parent = getParentNode(ele,ovl.opts.spotClass),
 			allErrorDivs = query('.form_err_wrapper',form),
 			allerrs = query('.err_box',form),
 			eindex = findIndex(parent, allerrs);
@@ -301,13 +353,12 @@ OpenVL.prototype.init = function (form) {
 			template = template.replace(/\[text\]/gm, text);
 			tmp.innerHTML = template;
 			nd = tmp.firstChild;
-			//document.removeChild(tmp);
 			return nd;
 		},
 		inlineTmpl: '<div class="form_err_wrapper"><div class="form_err_msg">[text]</div></div>',
 		listTmpl: '<div class="MessageArea"><ul>[text]</ul></div>',
 		build:function (scope) {
-			var form = ovl.$form[0], parent = parentNode(scope), ErrorsHTML = '';
+			var form = ovl.$form[0], parent = getParentNode(scope,ovl.opts.spotClass), ErrorsHTML = '';
 			if (!hasClass(parent,'err_box')){ addClass(parent, "err_box"); }
 			if (ovl.opts.msgType === "both" || ovl.opts.msgType === "inline") {
 				if ( query('.form_err_wrapper',parent).length === 0 ){
@@ -323,28 +374,31 @@ OpenVL.prototype.init = function (form) {
 					query('.MessageArea',form)[0].innerHTML = ErrorsHTML; 
 				} else if (query('.MessageArea',form).length === 0) {
 					var msgdiv = ovl.errors.writeTmpl(ovl.errors.listTmpl, ErrorsHTML);
+					console.log(msgdiv);
 					prepend(msgdiv, form);
 				}
 			}
 		},
-		show:function (index,form) {
-			var errboxes = query('.err_box',form);
-			if (ovl.opts.msgType === "both" || ovl.opts.msgType === "inline"){
-				query('.form_err_wrapper',errboxes[index])[0].style.display="block";
+		show:function (index) {
+			var form = ovl.$form[0];
+			
+			if (ovl.opts.msgType === "both" || ovl.opts.msgType === "inline") {
+				var errboxes = query('.err_box',form);
+				removeClass(query('.form_err_wrapper',errboxes[index])[0], 'hidden');
 			}
 			if (ovl.opts.focusOnSubmitError === true && ovl.currentEvent === 'submit') {
 				query('input, textarea, select',errboxes[0])[0].focus();
 			}
 		},
-		hide:function (index,form) {
+		hide:function (index) {
+			var form = ovl.$form[0];
 			if ((ovl.opts.msgType === "both"||ovl.opts.msgType === "inline") && ovl.opts.autoHideMsg === true) { 
-				var errboxes = query('.err_box',form); 
-				query('.form_err_wrapper',errboxes[index])[0].style.display="none"; 
+				var errboxes = query('.err_box',form);
+				addClass(query('.form_err_wrapper',errboxes[index])[0], 'hidden');
 			} 
 		},
-		clear:function (scope,form) {
-			
-			var form = ovl.$form[0], parent = parentNode(scope),
+		clear:function (scope) {
+			var form = ovl.$form[0], parent = getParentNode(scope,ovl.opts.spotClass),
 				ei = query('.err_box',form),
 				ma = query('.MessageArea',form),
 				mali = query('li',ma[0]),

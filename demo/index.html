@@ -3,6 +3,7 @@
 	<head>
 		<meta charset="utf-8">
 		<title>Open Validation Library - Demo</title>
+		<link rel="stylesheet" href="css/bootstrap-1.1.0.min.css">
 		<link rel="stylesheet" href="css/style.css">
 	</head>
 	<body>
@@ -17,42 +18,83 @@
 				<form action="" method="get" id="form">
 					<div class="form">
 						<input type="hidden" id="hidden1" value="hidden1">
-						<div class="spot"><label for="Name"><span class="req">*</span> Name</label><input type="text" id="Name" data-ovl-rules="form-req form-same" required="required" data-form-req-message="Custom message for form-req rule."></div>
-						<div class="spot"><label for="PhoneNumber">Phone Number</label><input type="text" id="PhoneNumber" data-ovl-rules="form-phone"></div>
-						<div class="spot"><label for="Email"><span class="req">*</span> Email</label><input type="email" id="Email" data-ovl-rules="form-req form-email" required="required"></div>
-						<div class="spot"><label for="verifyEmail"><span class="req">*</span> Verify Email</label>
-							<input type="text" id="verifyEmail" data-ovl-rules="form-req form-email form-same_verify" data-form-same-id="Email" required="required"></div>
-						<div class="spot"><label for="State"><span class="req">*</span> State</label><select id="State" data-ovl-rules="form-req" required="required"><option value="">Select</option><option value="AL">AL</option><option value="AK">AK</option><option value="AZ">AZ</option><option value="AR">AR</option><option value="CA">CA</option><option value="CO">CO</option><option value="CT">CT</option><option value="DE">DE</option><option value="DC">DC</option><option value="FL">FL</option><option value="GA">GA</option><option value="HI">HI</option><option value="ID">ID</option><option value="IL">IL</option><option value="IN">IN</option><option value="IA">IA</option><option value="KS">KS</option><option value="KY">KY</option><option value="LA">LA</option><option value="ME">ME</option><option value="MD">MD</option><option value="MA">MA</option><option value="MI">MI</option><option value="MN">MN</option><option value="MS">MS</option><option value="MO">MO</option><option value="MT">MT</option><option value="NE">NE</option><option value="NV">NV</option><option value="NH">NH</option><option value="NJ">NJ</option><option value="NM">NM</option><option value="NY">NY</option><option value="NC">NC</option><option value="ND">ND</option><option value="OH">OH</option><option value="OK">OK</option><option value="OR">OR</option><option value="PA">PA</option><option value="RI">RI</option><option value="SC">SC</option><option value="SD">SD</option><option value="TN">TN</option><option value="TX">TX</option><option value="UT">UT</option><option value="VT">VT</option><option value="VA">VA</option><option value="WA">WA</option><option value="WV">WV</option><option value="WI">WI</option><option value="WY">WY</option></select></div>
-						<div class="spot opts"><input type="checkbox" name="checkbox" data-ovl-rules="checkbox form-req form-check" data-form-check-message="You have to check this box!" id="Youhavetocheckme" required="required"><label for="Youhavetocheckme">You have to check me</label></div>
-						<div class="spot group opts">
-							<div class="spot"><input type="radio" name="radios" data-ovl-rules="radio form-req form-check" required="required" id="radio1" value="r1"><label for="radio1">Radiobutton 1</label></div>
-							<div class="spot"><input type="radio" name="radios" data-ovl-rules="radio form-req form-check" required="required" id="radio2" value="r2"><label for="radio2">Radiobutton 2</label></div>
-							<div class="spot"><input type="radio" name="radios" data-ovl-rules="radio form-req form-check" required="required" id="radio3" value="r3"><label for="radio3">Radiobutton 3</label></div>
+						<div class="clearfix spot">
+							<label for="Name"><span class="req">*</span> Name</label>
+							<div class="input">
+								<input type="text" id="Name" required="required" data-form-req-message="Custom message for form-req rule.">
+							</div>
 						</div>
-						<div class="spot "><button type="submit" id="Submit">Submit</button>
-							<button type="button" id="dis" onclick="OpenVL('#form').clearvalidation();">Clear Validation</button>
-							<button type="button" id="re" onclick="OpenVL('#form').validate(window.osettings);">ReEnable Validation</button>
+						<div class="clearfix spot">
+							<label for="PhoneNumber">Phone Number</label>
+							<div class="input">
+								<input type="text" id="PhoneNumber" data-ovl-rules="form-phone">
+							</div>
 						</div>
-						
+						<div class="clearfix spot">
+							<label for="Email"><span class="req">*</span> Email</label>
+							<div class="input">
+								<input type="text" id="Email" data-ovl-rules="form-req form-email" required="required">
+							</div>
+						</div>
+						<div class="clearfix spot">
+							<label for="verifyEmail"><span class="req">*</span> Verify Email</label>
+							<div class="input">
+								<input type="text" id="verifyEmail" data-ovl-rules="form-req form-email form-same_verify" data-form-same-id="Email" required="required">
+							</div>
+						</div>
+						<div class="clearfix spot">
+							<label for="State"><span class="req">*</span> State</label>
+							<div class="input">
+								<select id="State" data-ovl-rules="form-req" required="required">
+									<option value="">Select</option><option value="AL">AL</option><option value="AK">AK</option><option value="AZ">AZ</option><option value="AR">AR</option>
+								</select>
+							</div>
+						</div>
+						<div class="clearfix spot">
+							<div class="input">
+								<ul class="inputs-list">
+									<li>
+										<label for="Youhavetocheckme">
+											<input type="checkbox" name="checkbox" data-ovl-rules="checkbox form-req form-check" data-form-check-message="You have to check this box!" id="Youhavetocheckme" required="required">
+											<span>You have to check me</span>
+										</label>
+									</li>
+								</ul>
+							</div>
+						</div>
+						<div class="clearfix spot">
+							<div class="input">
+								<ul class="inputs-list">	
+									<li>
+										<label for="radio1">
+											<input type="radio" name="radios" data-ovl-rules="radio form-req form-check" required="required" id="radio1" value="r1">
+											<span>Radiobutton 1</span>
+										</label>
+									</li>
+									<li>
+										<label for="radio2">
+											<input type="radio" name="radios" data-ovl-rules="radio form-req form-check" required="required" id="radio2" value="r2">
+											<span>Radiobutton 2</span>
+										</label>
+									</li>
+									<li>
+										<label for="radio3">
+											<input type="radio" name="radios" data-ovl-rules="radio form-req form-check" required="required" id="radio3" value="r3">
+											<span>Radiobutton 3</span>
+										</label>
+									</li>
+								</ul>
+							</div>
+						</div>
+						<div class="clearfix spot actions">
+							<button type="submit" class="btn primary" id="Submit">Submit</button>
+							<button type="button" class="btn danger" id="dis" onclick="OpenVL('#form').clearvalidation();">Clear Validation</button>
+							<button type="button" class="btn" id="re" onclick="OpenVL('#form').validate(window.osettings);">ReEnable Validation</button>
+						</div>
 						<input type="hidden" id="hidden2" value="hidden2">
 					</div>
 				</form>
-				<h3>Form B</h3>
-				<form action="" method="get" id="form2">
-					<div class="form">
-						<div class="spot"><label for="Name2"><span class="req">*</span> Name</label><input type="text" id="Name2" data-ovl-rules="form-req" data-form-req-message="Test" required="required"></div>
-						<div class="spot"><label for="PhoneNumber2">Phone Number</label><input type="text" id="PhoneNumber2" class="form-phone"></div>
-						<div class="spot"><label for="Email2"><span class="req">*</span> Email</label><input type="email" id="Email2" class="form-req form-email"></div>
-						<div class="spot"><label for="State2"><span class="req">*</span> State</label><select id="State2" class="form-req"><option value="">Select</option><option value="AL">AL</option><option value="AK">AK</option><option value="AZ">AZ</option><option value="AR">AR</option><option value="CA">CA</option><option value="CO">CO</option><option value="CT">CT</option><option value="DE">DE</option><option value="DC">DC</option><option value="FL">FL</option><option value="GA">GA</option><option value="HI">HI</option><option value="ID">ID</option><option value="IL">IL</option><option value="IN">IN</option><option value="IA">IA</option><option value="KS">KS</option><option value="KY">KY</option><option value="LA">LA</option><option value="ME">ME</option><option value="MD">MD</option><option value="MA">MA</option><option value="MI">MI</option><option value="MN">MN</option><option value="MS">MS</option><option value="MO">MO</option><option value="MT">MT</option><option value="NE">NE</option><option value="NV">NV</option><option value="NH">NH</option><option value="NJ">NJ</option><option value="NM">NM</option><option value="NY">NY</option><option value="NC">NC</option><option value="ND">ND</option><option value="OH">OH</option><option value="OK">OK</option><option value="OR">OR</option><option value="PA">PA</option><option value="RI">RI</option><option value="SC">SC</option><option value="SD">SD</option><option value="TN">TN</option><option value="TX">TX</option><option value="UT">UT</option><option value="VT">VT</option><option value="VA">VA</option><option value="WA">WA</option><option value="WV">WV</option><option value="WI">WI</option><option value="WY">WY</option></select></div>
-						<div class="spot opts"><input type="checkbox" name="checkbox2" class="checkbox form-req form-check" id="Youhavetocheckme2"><label for="Youhavetocheckme2">You have to check me</label></div>
-						<div class="spot group opts">
-							<div class="spot"><input type="radio" name="radios2" class="radio form-req form-check" id="radio12" value="r1"><label for="radio12">Radiobutton 1</label></div>
-							<div class="spot"><input type="radio" name="radios2" class="radio form-req form-check" id="radio22" value="r2"><label for="radio22">Radiobutton 2</label></div>
-							<div class="spot"><input type="radio" name="radios2" class="radio form-req form-check" id="radio32" value="r3"><label for="radio32">Radiobutton 3</label></div>
-						</div>
-						<div class="spot "><button type="submit" id="Submit2">Submit</button></div>
-					</div>
-				</form>
+				
 			</div>
 			<div id="ft">
 				<p>Copyright 2010, Cameron Wardzala</p>
@@ -70,13 +112,12 @@
 				 * Just pass a class, id, or element name along with any of the other optional params to the .validate() function.
 				 */
 				window.osettings = {msgType:'inline'};
-				var ov = OpenVL('#form').validate(window.osettings);
+				var ov = OpenVL('#form').validate();
 				(function(ovl){
 					ovl.prototype.myPlugin = function() {
 						return this.exec();
 					};
 				})(OpenVL);
-				OpenVL('#form2').validate();
 			</script>
 		</div>
 	</body>
