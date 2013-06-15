@@ -1,6 +1,5 @@
 Open Validation Library (OpenVL)
 ================================
-More info at http://openvl.info
 
 Form validation made simple, and extensible.
 -------------------------------------------
@@ -54,7 +53,7 @@ When you call .validate() there are a few options you can pass to adjust how the
 	* "both" both message types will be used.
 5. `_autoHideMsg`: Sets if messages should auto hide and only show one message at a time. Default: `true`
 6. `focusOnSubmitError`: Sets if the form should auto focus the first error on submit. Default: `true`
-	
+
 On demand usage
 ---------------
 There are two ways to call validation on demand
@@ -119,7 +118,7 @@ Anatomy of a rule
 
 Default Ruleset
 ---------------
-The default ruleset is only a small selection of the rules that can be used with the validator, so feel free to write your own. 
+The default ruleset is only a small selection of the rules that can be used with the validator, so feel free to write your own.
 If you would like to submit a rule to be included in the default ruleset for others to use please email me at cwardzala@gmail.com, include the rule in the above format along with description of the rule.
 
 ### Is Required
