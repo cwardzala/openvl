@@ -144,3 +144,7 @@ Checks the character count based on the min and max attributes.
 
 ### Is Value
 Checks the numerical value based on the min and max attributes.
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/cwardzala/openvl/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
